@@ -20,12 +20,30 @@ function runMigrations() {
   }
 }
 
+// Run seed on startup (production only)
+function runSeed() {
+  if (env.NODE_ENV === "production") {
+    try {
+      logger.info("Seeding database...");
+      execSync("npx node scripts/seed.js", {
+        stdio: "inherit",
+        env: { ...process.env, DATABASE_URL: env.DATABASE_URL }
+      });
+      logger.info("Database seeded successfully");
+    } catch (error) {
+      // Don't fail if seed fails (might be already seeded)
+      logger.warn("Seed completed with message:", error.message);
+    }
+  }
+}
+
 // Tell the app to use Render's port FIRST, then fallback to your local env port, then 5000
 const PORT = process.env.PORT || env.PORT || 5000;
 
-// Run migrations before starting server
+// Run migrations and seed before starting server
 try {
   runMigrations();
+  runSeed();
   app.listen(PORT, () => {
     logger.info(`Backend running on port ${PORT}`);
   });
