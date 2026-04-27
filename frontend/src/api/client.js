@@ -1,6 +1,11 @@
 import axios from "axios";
 
 function resolveApiBaseUrl() {
+  // For production, use the deployed API
+  if (typeof window !== "undefined" && window.location.hostname.includes("vercel.app")) {
+    return "https://premiummeatshop-api.onrender.com/api";
+  }
+
   const configuredUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 
   if (configuredUrl) {
