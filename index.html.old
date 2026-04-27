@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer's Premium Meatshop</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        :root {
+            --brand-red: #c00000;
+            --brand-dark: #8b0000;
+            --bg-light: #fdfbf7;
+            --brand-ink: #1f2937;
+            --brand-muted: #475569;
+            --track-blue: #1e3a8a;
+            --track-blue-dark: #172d6b;
+            --money-green: #1b7f4b;
+        }
+        body { background-color: var(--bg-light); font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+        .navbar { background-color: var(--brand-red); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .cursor-pointer { cursor: pointer; }
+        .search-bar { border-radius: 50px; border: 2px solid #eee; padding: 10px 20px; outline: none; transition: border 0.3s; }
+        .search-bar:focus { border-color: var(--brand-red); box-shadow: 0 0 0 0.2rem rgba(192,0,0,0.25); }
+        .category-pills { background: none; border: none; color: var(--brand-red); font-weight: bold; border-radius: 50px; padding: 8px 20px; cursor: pointer; }
+        .category-pills.active { background-color: var(--brand-red); color: white; }
+        .product-card { border: 2px solid #eee; border-radius: 16px; background: white; height: 100%; transition: all 0.2s ease-in-out; }
+        .product-card:hover { transform: translateY(-5px); border-color: var(--brand-red); box-shadow: 0 10px 20px rgba(192,0,0,0.1); }
+        .meat-img-large { height: 160px; width: 100%; object-fit: cover; border-radius: 12px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; font-size: 5rem; }
+        .price-tag { color: var(--brand-red); font-size: 1.3rem; font-weight: 900; }
+        .btn-add { background-color: var(--brand-red); color: white; font-weight: bold; border: none; width: 100%; border-radius: 10px; padding: 10px; transition: background 0.2s; }
+        .btn-add:hover { background-color: var(--brand-dark); color: white; }
+        .btn-add:disabled { background-color: #ccc; cursor: not-allowed; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
+        .panel-box { background-color: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eee; width: 100%; box-sizing: border-box; }
+        .kanban-col { background-color: #f8f9fa; border-radius: 12px; padding: 15px; height: 100%; border: 1px solid #e9ecef; }
+        .kanban-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border-left: 4px solid #dee2e6; transition: transform 0.2s; }
+        .border-warning { border-left-color: #ffc107 !important; }
+        .border-primary { border-left-color: #0d6efd !important; }
+        .border-success { border-left-color: #198754 !important; }
+        .table-middle td { vertical-align: middle; }
+        .meat-icon-sm { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; background-color: #f8f9fa; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .img-preview-box { width: 100%; height: 200px; border: 2px dashed #ccc; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; background-color: #f8f9fa; }
+        .img-preview-box img { width: 100%; height: 100%; object-fit: contain; }
+        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: var(--bg-light); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; }
+        .login-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin: 20px; }
+        .login-box h2 { color: var(--brand-red); font-weight: bold; margin-bottom: 30px; text-align: center; }
+        .flowchart-container { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .flowchart-box { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 30px 0; }
+        .flowchart-step { background: var(--brand-red); color: white; padding: 20px 30px; border-radius: 12px; font-weight: bold; text-align: center; min-width: 150px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .flowchart-arrow { font-size: 28px; color: var(--brand-red); font-weight: bold; }
+        .flowchart-description { text-align: center; color: #666; margin-top: 15px; font-size: 0.95rem; }
+        .toast-custom { position: fixed; bottom: 20px; left: 20px; background: #212529; color: white; padding: 15px 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 12000; animation: slideIn 0.3s ease-in-out; max-width: 420px; }
+        .nav-icon-btn { background: transparent; border: none; color: inherit; padding: 0; }
+        .btn-track-order { background-color: var(--track-blue); border-color: var(--track-blue); color: white; }
+        .btn-track-order:hover, .btn-track-order:focus { background-color: var(--track-blue-dark); border-color: var(--track-blue-dark); color: white; }
+        .notification-trigger { position: relative; background: transparent; border: none; color: white; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+        .navbar-shell { gap: 16px; padding: 0 15px; }
+        .navbar-brand-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; }
+        .brand-copy { min-width: 0; text-align: left; }
+        .brand-title { margin: 0; white-space: nowrap; }
+        .brand-selected { background: rgba(255,255,255,0.92); border-radius: 18px; padding: 10px 16px; color: var(--brand-ink); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .brand-selected .brand-title { color: var(--brand-ink); }
+        .brand-selected small { color: var(--brand-muted) !important; }
+        .navbar-actions { display: flex; align-items: center; gap: 12px; justify-content: flex-end; width: 100%; }
+        .desktop-shortcut { display: inline-flex; }
+        .tracker-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+        .tracker-title { margin: 0; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .admin-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .admin-tabs { display: flex; gap: 18px; flex-wrap: wrap; border-bottom: none !important; }
+        .admin-tabs .nav-item { flex: 1 1 320px; }
+        .admin-tabs .nav-link { width: 100%; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 18px 24px; border: 1px solid #dee2e6; border-radius: 20px 20px 0 0; background: white; color: #6c757d; min-height: 96px; word-spacing: 6px; }
+        .admin-tabs .nav-link.active { background: white; border-color: #dee2e6; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .admin-tab-icon { display: inline-flex; align-items: center; justify-content: center; font-size: 2.75rem; line-height: 1; flex-shrink: 0; }
+        .admin-tab-label { display: inline-block; line-height: 1.05; text-align: center; }
+        .accounting-card { background: linear-gradient(180deg, #ffffff, #f8fafc); border: 1px solid #e9ecef; border-radius: 16px; padding: 18px; height: 100%; }
+        .accounting-label { color: #64748b; font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+        .accounting-value { color: var(--brand-ink); font-size: 1.85rem; font-weight: 800; margin-top: 10px; line-height: 1.1; }
+        .accounting-value.positive { color: var(--money-green); }
+        .accounting-value.negative { color: var(--brand-red); }
+        .accounting-subcopy { color: #64748b; font-size: 0.9rem; margin-top: 6px; }
+        .accounting-section-title { color: var(--brand-ink); font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; }
+        .checkout-summary-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .quantity-stepper { display: inline-flex; align-items: center; border: 1px solid #ddd; border-radius: 999px; overflow: hidden; background: #fff; }
+        .quantity-stepper button { width: 34px; height: 34px; border: none; background: #f8f9fa; font-weight: 700; color: #333; }
+        .quantity-stepper span { min-width: 36px; text-align: center; font-weight: 700; }
+        .checkout-summary-total { background: #f8f9fa; border-radius: 12px; padding: 14px 16px; }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .notification-panel { position: fixed; right: 0; top: 0; width: 350px; height: 100vh; background: white; border-left: 2px solid #e9ecef; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 10000; transform: translateX(100%); transition: transform 0.3s ease-in-out; border-radius: 0; overflow: hidden; max-width: 100vw; }
+        .notification-panel.open { transform: translateX(0); }
+        .notification-header { background: linear-gradient(135deg, var(--brand-red), var(--brand-dark)); color: white; padding: 15px; font-weight: bold; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
+        .notification-close { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0; }
+        .notification-list { overflow-y: auto; height: calc(100vh - 60px); padding: 0; }
+        .notification-item { padding: 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; background: #fff; }
+        .notification-item:hover { background: #f9f9f9; }
+        .notification-item.unread { background: #fff8f0; border-left: 4px solid var(--brand-red); padding-left: 11px; }
+        .notification-item-header { display: flex; justify-content: space-between; align-items: start; gap: 10px; }
+        .notification-customer { font-weight: 600; color: #333; font-size: 0.95rem; }
+        .notification-time { font-size: 0.8rem; color: #999; white-space: nowrap; }
+        .notification-amount { font-size: 1rem; font-weight: bold; color: var(--brand-red); margin-top: 6px; }
+        .notification-empty { padding: 40px 20px; text-align: center; color: #999; }
+        
+        /* Overlay when panel is open */
+        .notification-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 9999; display: none; }
+        .notification-overlay.open { display: block; }
+        
+        /* Hamburger Menu Toggle */
+        .navbar-toggler { border: none; padding: 0.25rem 0.5rem; background: none; font-size: 1.5rem; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .navbar-toggler:hover { opacity: 0.8; }
+        .navbar-menu { transition: all 0.3s ease-in-out; max-height: 0; overflow: hidden; opacity: 0; }
+        .navbar-menu.show { max-height: 600px; opacity: 1; }
+        .navbar-nav { flex-direction: column; gap: 0.5rem; }
+        
+        /* Show/Hide hamburger menu based on screen size */
+        @media (min-width: 992px) {
+            .navbar-toggler { display: none !important; }
+            .navbar-menu { display: flex !important; max-height: none; opacity: 1; flex-direction: row !important; width: auto; }
+            .navbar-nav { flex-direction: row; gap: 0.5rem; }
+            .navbar-shell { flex-wrap: nowrap; }
+            .navbar-menu { margin-left: auto; }
+            .navbar-actions { width: auto; flex-wrap: nowrap; }
+        }
+        
+        /* Responsive Layout - Tablet (769px - 992px) */
+        @media (max-width: 992px) {
+            .navbar-toggler { display: flex !important; margin-left: auto; }
+            .navbar-menu { display: none; width: 100%; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px; margin-top: 10px; flex-direction: column; gap: 8px; }
+            .navbar-menu.show { display: flex !important; }
+            .navbar-nav { gap: 8px; padding: 0; }
+            .navbar-nav .btn { width: 100%; font-size: 0.95rem; padding: 8px 12px; }
+            .navbar-nav .d-lg-none { display: block !important; }
+            .navbar-brand { gap: 10px; }
+            .navbar-brand div { font-size: 0.95rem; }
+            .navbar-brand small { font-size: 0.8rem; }
+            .navbar-shell { padding: 0 12px; }
+            .navbar-brand-wrap { width: 100%; }
+            .navbar-actions { justify-content: stretch; }
+            .navbar-actions .btn { width: 100%; }
+            .desktop-shortcut { display: none !important; }
+            .admin-toolbar { width: 100%; }
+        }
+        
+        /* Responsive Layout - Tablet & Mobile (max-width: 768px) */
+        @media (max-width: 768px) {
+            body { padding: 0; }
+            .container { padding-left: 15px; padding-right: 15px; }
+            .navbar { padding: 10px 15px; }
+            .navbar-brand { gap: 8px; }
+            .navbar-brand img { height: 60px; }
+            .navbar-brand div { font-size: 0.9rem; }
+            .navbar-brand small { font-size: 0.75rem; letter-spacing: 0.5px; }
+            .navbar-menu { background: rgba(0,0,0,0.15); }
+            .navbar-menu .btn-light { font-size: 0.9rem; padding: 8px 12px; }
+            .navbar-menu .btn-outline-light { font-size: 0.9rem; padding: 8px 12px; }
+            
+            /* Product Grid */
+            .product-card { padding: 12px; }
+            .meat-img-large { height: 120px; border-radius: 10px; }
+            .price-tag { font-size: 1.2rem; }
+            .btn-add { padding: 8px; font-size: 0.9rem; border-radius: 8px; }
+            
+            /* Checkout Form */
+            .col-md-6 { margin-bottom: 20px; }
+            .col-md-6.border-end { border-right: none !important; }
+            .col-md-6.ps-md-4 { padding-left: 0 !important; margin-top: 20px; }
+            .checkout-divider { display: none; }
+            
+            /* Panel Box */
+            .panel-box { padding: 20px; border-radius: 12px; }
+            .panel-box h4 { font-size: 1.1rem; }
+            
+            /* Notification Panel */
+            .notification-panel { width: 100%; max-width: 100%; }
+            .notification-header { padding: 12px; font-size: 1rem; }
+            .notification-item { padding: 12px; }
+            .notification-customer { font-size: 0.9rem; }
+            .notification-time { font-size: 0.75rem; }
+            .tracker-header { align-items: stretch; }
+            .tracker-header .btn { width: 100%; }
+            .admin-header { align-items: stretch; }
+            .admin-toolbar { width: 100%; }
+            .admin-toolbar .btn, .admin-toolbar .notification-trigger { width: 100%; justify-content: center; }
+            .admin-tabs { gap: 12px; }
+            .admin-tabs .nav-item { flex-basis: 100%; }
+            .admin-tabs .nav-link { min-height: 84px; padding: 16px 18px; font-size: 1.35rem; gap: 12px; }
+            .admin-tab-icon { font-size: 2rem; }
+            .accounting-value { font-size: 1.55rem; }
+            
+            /* Kanban - Admin */
+            .kanban-col { padding: 12px; margin-bottom: 20px; }
+            .kanban-card { padding: 12px; margin-bottom: 12px; }
+            .kanban-card p { font-size: 0.9rem; }
+            
+            /* Forms */
+            .form-control, .form-select { font-size: 1rem; padding: 10px; min-height: 36px; }
+            .form-label { font-size: 0.85rem; margin-bottom: 6px; }
+            
+            /* Tables */
+            .table { font-size: 0.9rem; }
+            .table th { font-size: 0.85rem; }
+            
+            /* Buttons */
+            .btn { min-height: 40px; font-size: 0.95rem; padding: 8px 12px; }
+            .btn-sm { min-height: 36px; font-size: 0.85rem; padding: 6px 10px; }
+            
+            /* Category Pills */
+            .category-pills { padding: 6px 16px; font-size: 0.9rem; margin: 4px 2px; }
+            
+            /* Typography */
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.25rem; }
+            h4 { font-size: 1.1rem; }
+            h5 { font-size: 1rem; }
+            h6 { font-size: 0.9rem; }
+            
+            /* Spacing */
+            .mb-4 { margin-bottom: 15px; }
+            .mb-5 { margin-bottom: 20px; }
+            .mt-4 { margin-top: 15px; }
+            .mt-5 { margin-top: 20px; }
+            .gap-3 { gap: 12px !important; }
+            .gap-4 { gap: 12px !important; }
+            
+            /* Flexbox adjustments */
+            .d-flex.justify-content-between { flex-wrap: wrap; }
+            .flex-wrap { gap: 10px; }
+            
+            /* Images */
+            .img-preview-box { height: 150px; }
+            .meat-icon-sm { width: 40px; height: 40px; font-size: 1.2rem; }
+        }
+        
+        /* Mobile - Extra Small (max-width: 576px) */
+        @media (max-width: 576px) {
+            .container { padding-left: 12px; padding-right: 12px; }
+            .navbar { padding: 8px 12px; gap: 10px; }
+            .navbar-brand { gap: 6px; width: 100%; }
+            .navbar-brand img { height: 50px; }
+            .navbar-brand div { font-size: 0.85rem; line-height: 1.2; }
+            .navbar-brand small { font-size: 0.65rem; }
+            .navbar-toggler { font-size: 1.2rem; padding: 0; }
+            .navbar-menu { margin-top: 8px; padding: 8px 10px; gap: 6px; }
+            .navbar-menu .btn { font-size: 0.85rem; padding: 6px 12px; }
+            .navbar-nav { gap: 6px; }
+            .brand-title { white-space: normal; }
+            .navbar-shell { padding: 0 10px; }
+            .navbar-brand-wrap { align-items: flex-start; }
+            .tracker-title { width: 100%; text-align: left !important; }
+            .admin-tabs .nav-link { min-height: 72px; padding: 14px 12px; gap: 10px; font-size: 1.1rem; }
+            .admin-tab-icon { font-size: 1.65rem; }
+            .admin-tab-label { font-size: 0.95em; }
+            
+            /* Panel Box */
+            .panel-box { padding: 15px; border-radius: 10px; }
+            .panel-box h4 { font-size: 1rem; margin-bottom: 15px; }
+            .panel-box h5 { font-size: 0.95rem; }
+            
+            /* Product Grid */
+            .row.g-4 { gap: 12px; }
+            .product-card { padding: 10px; }
+            .meat-img-large { height: 100px; font-size: 3rem; border-radius: 8px; }
+            .price-tag { font-size: 1.1rem; }
+            .price-tag .fs-6 { font-size: 0.8rem; }
+            .btn-add { padding: 7px; font-size: 0.85rem; border-radius: 6px; min-height: 36px; }
+            
+            /* Checkout Form */
+            .col-md-6 { padding-left: 0 !important; padding-right: 0 !important; margin-bottom: 15px; }
+            .checkout-left { border-right: none !important; padding-right: 0 !important; }
+            .checkout-right { padding-left: 0 !important; margin-top: 15px; }
+            .col-md-10 { max-width: 100%; }
+            
+            /* Notification Panel */
+            .notification-panel { width: 100%; right: 0; }
+            .notification-header { padding: 10px; font-size: 0.9rem; }
+            .notification-item { padding: 8px; }
+            .notification-customer { font-size: 0.8rem; }
+            .notification-time { font-size: 0.7rem; }
+            .notification-amount { font-size: 0.9rem; }
+            
+            /* Login Box */
+            .login-box { padding: 30px 20px; max-width: 90%; width: 100%; }
+            .login-box h2 { font-size: 1.5rem; margin-bottom: 20px; }
+            .btn { font-size: 0.9rem; padding: 8px 12px; min-height: 36px; }
+            .btn-sm { font-size: 0.8rem; padding: 6px 8px; }
+            
+            /* Forms */
+            .form-control, .form-select, input, textarea { font-size: 1rem; padding: 8px 12px; min-height: 36px; border-radius: 6px; }
+            .form-label { font-size: 0.8rem; margin-bottom: 4px; }
+            
+            /* Kanban Admin */
+            .kanban-col { padding: 10px; margin-bottom: 15px; }
+            .kanban-card { padding: 10px; margin-bottom: 10px; font-size: 0.85rem; }
+            .kanban-card p { margin-bottom: 6px; }
+            .col-md-4 { margin-bottom: 15px; }
+            
+            /* Tables */
+            .table { font-size: 0.8rem; }
+            .table th { font-size: 0.75rem; }
+            .table-responsive { font-size: 0.85rem; }
+            
+            /* Track Order */
+            .input-group { margin-bottom: 10px; }
+            .input-group .form-control { font-size: 0.95rem; padding: 8px; }
+            .form-control-lg { font-size: 0.95rem; padding: 8px 12px; height: 36px; }
+            
+            /* Flowchart */
+            .flowchart-box { gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+            .flowchart-step { padding: 15px 20px; font-size: 0.85rem; min-width: 120px; }
+            .flowchart-arrow { font-size: 20px; }
+            
+            /* Typography */
+            body { font-size: 14px; }
+            h1 { font-size: 1.5rem; line-height: 1.3; margin-bottom: 15px; }
+            h2 { font-size: 1.3rem; line-height: 1.3; margin-bottom: 15px; }
+            h3 { font-size: 1.1rem; margin-bottom: 12px; }
+            h4 { font-size: 1rem; margin-bottom: 12px; }
+            h5 { font-size: 0.95rem; }
+            h6 { font-size: 0.85rem; }
+            p { font-size: 0.9rem; line-height: 1.5; }
+            small { font-size: 0.75rem; }
+            
+            /* Spacing Adjustments */
+            .mb-3 { margin-bottom: 12px; }
+            .mb-4 { margin-bottom: 12px; }
+            .mb-5 { margin-bottom: 15px; }
+            .mt-3 { margin-top: 12px; }
+            .mt-4 { margin-top: 12px; }
+            .mt-5 { margin-top: 15px; }
+            .py-2 { padding-top: 6px; padding-bottom: 6px; }
+            .py-3 { padding-top: 10px; padding-bottom: 10px; }
+            .px-4 { padding-left: 12px; padding-right: 12px; }
+            .gap-2 { gap: 8px; }
+            .gap-3 { gap: 10px; }
+            .gap-4 { gap: 12px; }
+            
+            /* Badges */
+            .badge { font-size: 0.75rem; padding: 4px 8px; }
+            
+            /* Images */
+            .img-preview-box { height: 120px; border-radius: 8px; }
+            .meat-icon-sm { width: 35px; height: 35px; font-size: 1rem; }
+            
+            /* Badges & Status */
+            .badge-sm { font-size: 0.7rem; }
+            
+            /* Dividers */
+            .border-end { border-right: none !important; }
+            .border-top { margin-top: 10px; padding-top: 10px; }
+            .border-bottom { margin-bottom: 10px; padding-bottom: 10px; }
+            
+            /* Toast */
+            .toast-custom { font-size: 0.85rem; padding: 12px 16px; bottom: 15px; left: 15px; right: 15px; }
+            
+            /* Modal */
+            .modal-content { border-radius: 12px; }
+            .modal-header { padding: 12px; }
+            .modal-body { padding: 15px; font-size: 0.9rem; }
+            .modal-footer { padding: 12px; }
+            .modal-title { font-size: 1rem; }
+            
+            /* Buttons in Modal */
+            .modal .btn { font-size: 0.9rem; }
+            
+            /* Cart Item */
+            .cart-item { padding: 8px 0; }
+            .cart-item .fw-bold { font-size: 0.95rem; }
+            
+            /* Links and Anchors */
+            a { word-break: break-word; }
+        }
+        
+        /* Extra Extra Small (max-width: 360px) */
+        @media (max-width: 360px) {
+            .navbar-brand img { height: 45px; }
+            .navbar-brand div { font-size: 0.8rem; }
+            .admin-tabs .nav-link { font-size: 1rem; padding: 12px 10px; }
+            .admin-tab-icon { font-size: 1.5rem; }
+            h1 { font-size: 1.3rem; }
+            h2 { font-size: 1.2rem; }
+            .product-card { padding: 8px; }
+            .meat-img-large { height: 80px; font-size: 2rem; }
+            .category-pills { padding: 5px 12px; font-size: 0.85rem; }
+            .btn { font-size: 0.85rem; padding: 6px 10px; }
+            .form-control { font-size: 0.9rem; padding: 6px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/babel">
+        const { useState, useCallback, useMemo, useEffect } = React;
+
+        function App() {
+            const [navbarOpen, setNavbarOpen] = useState(false);
+            const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+            const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+            const [showPassword, setShowPassword] = useState(false);
+            const [brandSelected, setBrandSelected] = useState(false);
+            const [currentView, setCurrentView] = useState('shop');
+            const [adminTab, setAdminTab] = useState('orders');
+            const [currentCategory, setCurrentCategory] = useState('Premium');
+            const [products, setProducts] = useState([
+                { id: 1, name: 'Wagyu Chuck Roll', category: 'Premium', price: 1150, unit: '500G', image: '🥩', inStock: true },
+                { id: 2, name: 'USDA Ribeye', category: 'Premium', price: 900, unit: '500G', image: '🥩', inStock: true },
+                { id: 4, name: 'Whole Chicken', category: 'Poultry', price: 210, unit: 'KG', image: '🍗', inStock: true },
+                { id: 9, name: 'Pork Sukiyaki', category: 'Pork', price: 420, unit: 'KG', image: '🥓', inStock: true },
+                { id: 16, name: 'Beef Sukiyaki', category: 'Beef', price: 490, unit: 'KG', image: '🥩', inStock: true },
+            ]);
+            const [cart, setCart] = useState([]);
+            const [checkoutForm, setCheckoutForm] = useState({ name: '', phone: '', address: '' });
+            const [receiptPreview, setReceiptPreview] = useState(null);
+            const [lastOrderRef, setLastOrderRef] = useState('');
+            const [orders, setOrders] = useState([]);
+            const [newProduct, setNewProduct] = useState({ name: '', category: 'Premium', price: 0, unit: '', image: '🥩' });
+            const [editProduct, setEditProduct] = useState({ id: null, name: '', category: 'Premium', price: 0, unit: '', image: '🥩' });
+            const [editModalOpen, setEditModalOpen] = useState(false);
+            const [imagePreview, setImagePreview] = useState(null);
+            const [cartOpen, setCartOpen] = useState(false);
+            const [toastMessage, setToastMessage] = useState('');
+            const [notifications, setNotifications] = useState([]);
+            const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
+            const [selectedNotification, setSelectedNotification] = useState(null);
+            const [trackingOrderId, setTrackingOrderId] = useState('');
+            const [trackedOrder, setTrackedOrder] = useState(null);
+            const [pendingDeleteProduct, setPendingDeleteProduct] = useState(null);
+            const [expenses, setExpenses] = useState([]);
+            const [expenseForm, setExpenseForm] = useState({
+                date: new Date().toISOString().split('T')[0],
+                category: 'Operations',
+                description: '',
+                amount: ''
+            });
+            const ORDER_STORAGE_KEY = 'farmerpremium_orders';
+            const NOTIFICATION_STORAGE_KEY = 'farmerpremium_notifications';
+
+            useEffect(() => {
+                try {
+                    const savedOrders = JSON.parse(localStorage.getItem(ORDER_STORAGE_KEY) || '[]');
+                    const hydratedOrders = Array.isArray(savedOrders)
+                        ? savedOrders.map((order) => ({
+                            ...order,
+                            createdAt: order.createdAt ? new Date(order.createdAt) : new Date()
+                        }))
+                        : [];
+                    setOrders(hydratedOrders);
+                } catch (error) {
+                    console.error('Unable to restore saved orders.', error);
+                }
+
+                try {
+                    const savedNotifications = JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY) || '[]');
+                    const hydratedNotifications = Array.isArray(savedNotifications)
+                        ? savedNotifications.map((notification) => ({
+                            ...notification,
+                            status: notification.status || 'pending',
+                            time: notification.time ? new Date(notification.time) : new Date()
+                        }))
+                        : [];
+                    setNotifications(hydratedNotifications);
+                } catch (error) {
+                    console.error('Unable to restore saved notifications.', error);
+                }
+            }, []);
+
+            useEffect(() => {
+                try {
+                    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orders));
+                } catch (error) {
+                    console.error('Unable to save orders.', error);
+                }
+            }, [orders]);
+
+            useEffect(() => {
+                try {
+                    localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(notifications));
+                } catch (error) {
+                    console.error('Unable to save notifications.', error);
+                }
+            }, [notifications]);
+
+            const markNotificationAsRead = (notifId) => {
+                setNotifications((prevNotifications) => prevNotifications.map((notification) =>
+                    notification.id === notifId ? { ...notification, read: true } : notification
+                ));
+            };
+
+            const handleTrackOrder = () => {
+                const found = orders.find(o => o.id === trackingOrderId);
+                if (found) {
+                    setTrackedOrder(found);
+                } else {
+                    showToast('Order not found. Please check the order ID.');
+                }
+            };
+
+            const getStatusColor = (status) => {
+                switch(status) {
+                    case 'pending': return '#ffc107';
+                    case 'confirmed': return '#0d6efd';
+                    case 'delivered': return '#198754';
+                    default: return '#6c757d';
+                }
+            };
+
+            const getStatusEmoji = (status) => {
+                switch(status) {
+                    case 'pending': return '🕐';
+                    case 'confirmed': return '✅';
+                    case 'delivered': return '🚚';
+                    default: return '❓';
+                }
+            };
+
+            const filteredProducts = useMemo(() => 
+                products.filter(p => p.category === currentCategory), 
+                [products, currentCategory]
+            );
+
+            const cartTotal = useMemo(() => 
+                cart.reduce((sum, item) => sum + item.price, 0), 
+                [cart]
+            );
+
+            const cartSummary = useMemo(() => {
+                const groupedItems = new Map();
+                cart.forEach((item) => {
+                    const existing = groupedItems.get(item.id);
+                    if (existing) {
+                        existing.quantity += 1;
+                    } else {
+                        groupedItems.set(item.id, { ...item, quantity: 1 });
+                    }
+                });
+                return Array.from(groupedItems.values());
+            }, [cart]);
+
+            const activeNotifications = useMemo(() =>
+                notifications.filter((notification) => notification.status !== 'delivered'),
+                [notifications]
+            );
+
+            const unreadNotificationCount = useMemo(() =>
+                activeNotifications.filter((notification) => !notification.read).length,
+                [activeNotifications]
+            );
+
+            const accountingSummary = useMemo(() => {
+                const grossSales = orders.reduce((sum, order) => sum + order.total, 0);
+                const collectedRevenue = orders
+                    .filter((order) => order.status === 'delivered')
+                    .reduce((sum, order) => sum + order.total, 0);
+                const receivables = orders
+                    .filter((order) => order.status !== 'delivered')
+                    .reduce((sum, order) => sum + order.total, 0);
+                const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+                const averageOrderValue = orders.length ? grossSales / orders.length : 0;
+
+                return {
+                    grossSales,
+                    collectedRevenue,
+                    receivables,
+                    totalExpenses,
+                    averageOrderValue,
+                    netBalance: collectedRevenue - totalExpenses
+                };
+            }, [orders, expenses]);
+
+            const showToast = useCallback((msg) => {
+                setToastMessage(msg);
+                setTimeout(() => setToastMessage(''), 2000);
+            }, []);
+
+            const handleAdminLogin = (e) => {
+                e.preventDefault();
+                if (loginForm.username === 'admin' && loginForm.password === 'admin123') {
+                    setIsAdminLoggedIn(true);
+                    setCurrentView('admin');
+                    setAdminTab('orders');
+                    setLoginForm({ username: '', password: '' });
+                } else {
+                    showToast('Invalid credentials. Try admin / admin123.');
+                }
+            };
+
+            const handleAdminLogout = () => {
+                setIsAdminLoggedIn(false);
+                setCurrentView('shop');
+                setLoginForm({ username: '', password: '' });
+            };
+
+            const goToTrackOrder = () => {
+                setCurrentView('track-order');
+                setNavbarOpen(false);
+            };
+
+            const goBackToShop = () => {
+                setCurrentView('shop');
+                setLoginForm({ username: '', password: '' });
+                setShowPassword(false);
+            };
+
+            const returnFromTracker = () => {
+                setCurrentView('shop');
+                setTrackedOrder(null);
+                setTrackingOrderId('');
+            };
+
+            const addToCart = (product) => {
+                setCart([...cart, { ...product }]);
+                setCartOpen(true);
+                showToast('✅ Added to Cart!');
+            };
+
+            const removeFromCart = (index) => {
+                setCart(cart.filter((_, i) => i !== index));
+            };
+
+            const updateCartQuantity = (productId, nextQuantity) => {
+                const targetProduct = products.find((product) => product.id === productId);
+                if (!targetProduct) return;
+
+                if (nextQuantity <= 0) {
+                    setCart(cart.filter((item) => item.id !== productId));
+                    return;
+                }
+
+                const cartWithoutProduct = cart.filter((item) => item.id !== productId);
+                const rebuiltItems = Array.from({ length: nextQuantity }, () => ({ ...targetProduct }));
+                setCart([...cartWithoutProduct, ...rebuiltItems]);
+            };
+
+            const goToCheckout = () => {
+                if (cart.length === 0) {
+                    showToast('Your cart is empty. Add items first.');
+                    return;
+                }
+                setCurrentView('checkout');
+            };
+
+            const previewReceipt = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => setReceiptPreview(e.target.result);
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const handlePaymentSubmission = (e) => {
+                e.preventDefault();
+                const sanitizedName = checkoutForm.name.trim().replace(/\s+/g, ' ');
+                const sanitizedPhone = checkoutForm.phone.replace(/[\s-]/g, '').trim();
+                const sanitizedAddress = checkoutForm.address.trim().replace(/\s+/g, ' ');
+                const namePattern = /^[A-Za-z][A-Za-z\s.'-]{1,79}$/;
+                const phonePattern = /^(?:\+63|0)9\d{9}$/;
+
+                if (!sanitizedName || !sanitizedPhone || !sanitizedAddress) {
+                    showToast('Please complete name, contact number, and address.');
+                    return;
+                }
+
+                if (!namePattern.test(sanitizedName)) {
+                    showToast('Enter a valid full name (letters, spaces, apostrophe, dash).');
+                    return;
+                }
+
+                if (!phonePattern.test(sanitizedPhone)) {
+                    showToast('Enter a valid PH contact number (09XXXXXXXXX or +639XXXXXXXXX).');
+                    return;
+                }
+
+                if (sanitizedAddress.length < 10) {
+                    showToast('Please enter a more complete address (at least 10 characters).');
+                    return;
+                }
+                const refId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+                const orderTotal = cart.reduce((sum, item) => sum + item.price, 0);
+                const newOrder = {
+                    id: refId,
+                    customer: sanitizedName,
+                    phone: sanitizedPhone,
+                    address: sanitizedAddress,
+                    total: orderTotal,
+                    status: 'pending',
+                    receiptImg: receiptPreview,
+                    createdAt: new Date()
+                };
+                setOrders((prevOrders) => [...prevOrders, newOrder]);
+                setLastOrderRef(refId);
+                setNotifications((prevNotifications) => [...prevNotifications, {
+                    id: refId,
+                    message: `New Order from ${sanitizedName}`,
+                    customer: sanitizedName,
+                    amount: orderTotal,
+                    status: 'pending',
+                    time: new Date(),
+                    read: false
+                }]);
+                setCurrentView('success');
+                setCart([]);
+                setCheckoutForm({ name: '', phone: '', address: '' });
+                setReceiptPreview(null);
+            };
+
+            const ordersByStatus = (status) => orders.filter(o => o.status === status);
+
+            const updateOrderStatus = (orderId, newStatus) => {
+                const currentOrder = orders.find((order) => order.id === orderId);
+                if (!currentOrder || currentOrder.status === newStatus) {
+                    return;
+                }
+
+                setOrders((prevOrders) => prevOrders.map((order) =>
+                    order.id === orderId ? { ...order, status: newStatus } : order
+                ));
+                setNotifications((prevNotifications) =>
+                    prevNotifications
+                        .map((notification) =>
+                            notification.id === orderId
+                                ? { ...notification, status: newStatus, read: newStatus === 'delivered' ? true : notification.read }
+                                : notification
+                        )
+                        .filter((notification) => notification.status !== 'delivered')
+                );
+                setSelectedNotification((prevSelectedNotification) =>
+                    prevSelectedNotification && prevSelectedNotification.id === orderId
+                        ? (newStatus === 'delivered' ? null : { ...prevSelectedNotification, status: newStatus })
+                        : prevSelectedNotification
+                );
+            };
+
+            const handleAddProduct = () => {
+                setProducts([...products, {
+                    id: Math.max(...products.map(p => p.id), 0) + 1,
+                    name: newProduct.name,
+                    category: newProduct.category,
+                    price: newProduct.price,
+                    unit: newProduct.unit.toUpperCase(),
+                    image: newProduct.image,
+                    inStock: true
+                }]);
+                setNewProduct({ name: '', category: 'Premium', price: 0, unit: '', image: '🥩' });
+            };
+
+            const openEditModal = (product) => {
+                setEditProduct({ ...product });
+                setEditModalOpen(true);
+            };
+
+            const saveEdit = () => {
+                setProducts(products.map(p => p.id === editProduct.id ? editProduct : p));
+                setEditModalOpen(false);
+            };
+
+            const toggleStock = (id) => {
+                setProducts(products.map(p => p.id === id ? { ...p, inStock: !p.inStock } : p));
+            };
+
+            const deleteProduct = (id) => {
+                setPendingDeleteProduct(products.find((product) => product.id === id) || null);
+            };
+
+            const confirmDeleteProduct = () => {
+                if (!pendingDeleteProduct) return;
+                setProducts(products.filter((product) => product.id !== pendingDeleteProduct.id));
+                setPendingDeleteProduct(null);
+                showToast('Product removed from inventory.');
+            };
+
+            const handleAddExpense = (e) => {
+                e.preventDefault();
+                const parsedAmount = parseFloat(expenseForm.amount);
+
+                if (!expenseForm.date || !expenseForm.description.trim() || !parsedAmount || parsedAmount <= 0) {
+                    showToast('Please complete the accounting entry first.');
+                    return;
+                }
+
+                const newExpense = {
+                    id: `EXP-${Date.now()}`,
+                    date: expenseForm.date,
+                    category: expenseForm.category,
+                    description: expenseForm.description.trim(),
+                    amount: parsedAmount
+                };
+
+                setExpenses([newExpense, ...expenses]);
+                setExpenseForm({
+                    date: new Date().toISOString().split('T')[0],
+                    category: 'Operations',
+                    description: '',
+                    amount: ''
+                });
+                showToast('Expense recorded in accounting.');
+            };
+
+            const deleteExpense = (expenseId) => {
+                setExpenses(expenses.filter((expense) => expense.id !== expenseId));
+                showToast('Expense removed.');
+            };
+
+            const getCategoryBadgeClass = (category) => {
+                const classes = {
+                    'Premium': 'bg-dark',
+                    'Poultry': 'bg-warning text-dark',
+                    'Pork': 'bg-danger',
+                    'Beef': 'bg-primary'
+                };
+                return classes[category] || 'bg-secondary';
+            };
+
+            const handleProductImageUpload = async (event) => {
+                if (event.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => setNewProduct({ ...newProduct, image: e.target.result });
+                    reader.readAsDataURL(event.target.files[0]);
+                }
+            };
+
+            const handleEditImageUpload = async (event) => {
+                if (event.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => setEditProduct({ ...editProduct, image: e.target.result });
+                    reader.readAsDataURL(event.target.files[0]);
+                }
+            };
+
+            return (
+                <>
+                    {!isAdminLoggedIn && currentView === 'admin-login' && (
+                        <div className="login-container">
+                            <div className="login-box">
+                                <h2>🔐 Admin Login</h2>
+                                <form onSubmit={handleAdminLogin}>
+                                    <div className="mb-3">
+                                        <label className="form-label fw-bold text-secondary">Username</label>
+                                        <input 
+                                            value={loginForm.username}
+                                            onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                                            type="text" 
+                                            className="form-control bg-light" 
+                                            required 
+                                        />
+                                    </div>
+                                    <div className="mb-2">
+                                        <label className="form-label fw-bold text-secondary">Password</label>
+                                        <input 
+                                            value={loginForm.password}
+                                            onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                                            type={showPassword ? 'text' : 'password'} 
+                                            className="form-control bg-light" 
+                                            required 
+                                        />
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="btn btn-sm btn-light border w-100 mb-4 fw-bold"
+                                    >
+                                        {showPassword ? 'Hide Password' : 'Show Password'}
+                                    </button>
+                                    <button type="submit" className="btn w-100 fw-bold text-white py-2" style={{ backgroundColor: 'var(--brand-red)' }}>Login</button>
+                                    <button 
+                                        type="button" 
+                                        onClick={goBackToShop}
+                                        className="btn btn-outline-secondary w-100 fw-bold mt-2"
+                                    >
+                                        Back to Shop
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentView !== 'admin-login' && (
+                        <nav className="navbar navbar-dark shadow-sm sticky-top mb-4 py-3">
+                            <div className="container navbar-shell d-flex justify-content-between align-items-center w-100">
+                                <div className="navbar-brand-wrap">
+                                    <button 
+                                        type="button"
+                                        className={`navbar-brand fw-bold fs-4 cursor-pointer d-flex align-items-center gap-2 m-0 nav-icon-btn ${brandSelected ? 'brand-selected' : ''}`}
+                                        onClick={() => { setBrandSelected(true); setCurrentView('shop'); setNavbarOpen(false); }}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <img src="./Assets/IMG-743fadedeae8e984e2be4e1c65adaa85-V-removebg-preview.png" alt="Logo" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
+                                        <div className="brand-copy">
+                                            <div className="brand-title">Farmer's Premium Meatshop</div>
+                                            <small className="text-white d-block" style={{ fontSize: '0.9rem', letterSpacing: '1px', fontWeight: '500' }}>Prime cuts, pure flavor</small>
+                                        </div>
+                                    </button>
+                                    <button 
+                                        className="navbar-toggler d-lg-none"
+                                        type="button"
+                                        onClick={() => setNavbarOpen(!navbarOpen)}
+                                        style={{ border: 'none', background: 'none', color: 'white', fontSize: '1.5rem', padding: '0', marginLeft: 'auto' }}
+                                        title="Toggle navigation"
+                                    >
+                                        ☰
+                                    </button>
+                                </div>
+                                <div className={`navbar-menu ${navbarOpen ? 'show' : ''} d-none d-lg-flex`} style={{ display: 'flex' }}>
+                                    <div className="navbar-actions navbar-nav">
+                                        {/* Mobile Navigation Items */}
+                                        <button 
+                                            className="btn btn-light fw-bold rounded-pill px-4 shadow-sm d-lg-none"
+                                            onClick={() => { setCurrentView('shop'); setNavbarOpen(false); }}
+                                            style={{ textDecoration: 'none' }}
+                                            title="Back to shop"
+                                        >
+                                            🏠 Home
+                                        </button>
+                                        <button 
+                                            className="btn btn-track-order fw-bold rounded-pill px-4 d-lg-none"
+                                            onClick={goToTrackOrder}
+                                            title="Track your order"
+                                        >
+                                            Track Order
+                                        </button>
+                                        
+                                        {!isAdminLoggedIn && (
+                                            <button 
+                                                type="button"
+                                                className="btn btn-track-order fw-bold rounded-pill px-4 desktop-shortcut d-none d-lg-inline-block"
+                                                onClick={goToTrackOrder}
+                                                title="Track your order"
+                                            >
+                                                Track Order
+                                            </button>
+                                        )}
+                                        {/* Desktop Storefront Items */}
+                                        {isAdminLoggedIn && (
+                                            <button 
+                                                type="button"
+                                                className="position-relative cursor-pointer me-2 notification-trigger d-none"
+                                                onClick={() => {
+                                                    setNotificationPanelOpen(!notificationPanelOpen);
+                                                    setNavbarOpen(false);
+                                                }}
+                                                style={{ cursor: 'pointer' }}
+                                                title="View notifications"
+                                            >
+                                                <span className="fs-4">🔔</span>
+                                                {unreadNotificationCount > 0 && (
+                                                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white fw-bold">
+                                                        {unreadNotificationCount}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        )}
+                                        {!isAdminLoggedIn && (
+                                            <button 
+                                                type="button"
+                                                className="btn btn-dark fw-bold rounded-pill px-4 shadow-sm cursor-pointer"
+                                                onClick={() => { setCurrentView('admin-login'); setNavbarOpen(false); }}
+                                                style={{ cursor: 'pointer', textDecoration: 'none', display: 'inline-block', whiteSpace: 'nowrap' }}
+                                            >
+                                                Admin
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    )}
+
+                    {currentView === 'shop' && (
+                        <div className="container mb-5">
+                            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                                <h2 className="fw-bold m-0 text-dark">Order Fresh Meats</h2>
+                                <div className="d-flex gap-2 flex-wrap">
+                                    <button 
+                                        className="btn btn-track-order fw-bold rounded-pill px-4 d-none d-md-inline-block"
+                                        onClick={goToTrackOrder}
+                                        title="Track your order"
+                                    >
+                                        Track Order
+                                    </button>
+                                    <button 
+                                        className="btn btn-dark fw-bold fs-5 shadow-sm rounded-pill px-4"
+                                        onClick={goToCheckout}
+                                    >
+                                        🛒 Cart ({cart.length})
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="d-flex justify-content-center mb-5 gap-2 flex-wrap">
+                                {['Premium', 'Poultry', 'Pork', 'Beef'].map(cat => (
+                                    <button 
+                                        key={cat}
+                                        className={`category-pills ${currentCategory === cat ? 'active' : ''}`}
+                                        onClick={() => setCurrentCategory(cat)}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="row g-4">
+                                {filteredProducts.map(product => (
+                                    <div key={product.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
+                                        <div 
+                                            className={`product-card p-3 d-flex flex-column position-relative ${!product.inStock ? 'opacity-75' : ''}`}
+                                        >
+                                            {!product.inStock && (
+                                                <span className="badge bg-danger position-absolute top-0 end-0 m-3 shadow-sm">Out of Stock</span>
+                                            )}
+                                            <div className="meat-img-large">
+                                                {product.image.length > 5 ? (
+                                                    <img src={product.image} style={{ objectFit: 'contain' }} />
+                                                ) : (
+                                                    product.image
+                                                )}
+                                            </div>
+                                            <h5 className="fw-bold text-dark mb-1 mt-3">{product.name}</h5>
+                                            <div className="mt-auto pt-2 border-top">
+                                                <div className="price-tag mb-3 mt-2">
+                                                    ₱{product.price.toLocaleString()} <span className="fs-6 text-dark fw-normal">/ {product.unit}</span>
+                                                </div>
+                                                <button 
+                                                    className="btn-add shadow-sm"
+                                                    disabled={!product.inStock}
+                                                    onClick={() => addToCart(product)}
+                                                >
+                                                    {product.inStock ? 'Add to Cart' : 'Unavailable'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {currentView === 'checkout' && (
+                        <div className="container mb-5">
+                            <div className="row justify-content-center">
+                                <div className="col-12 col-md-10">
+                                    <button 
+                                        className="btn btn-sm btn-outline-secondary mb-3 fw-bold rounded-pill px-3"
+                                        onClick={() => setCurrentView('shop')}
+                                    >
+                                        ← Back to Shop
+                                    </button>
+                                    <div className="panel-box">
+                                        <div className="row g-2 g-md-4">
+                                            <div className="col-12 col-md-6 checkout-left pe-md-4 mb-3 mb-md-0" style={{ borderRight: 'none' }}>
+                                                <h4 className="fw-bold mb-4 text-dark">Delivery Details</h4>
+                                                <div className="mb-3">
+                                                    <label className="form-label fw-bold text-secondary small">Full Name</label>
+                                                    <input 
+                                                        value={checkoutForm.name}
+                                                        onChange={(e) => setCheckoutForm({ ...checkoutForm, name: e.target.value })}
+                                                        maxLength="80"
+                                                        className="form-control bg-light" 
+                                                        required 
+                                                    />
+                                                </div>
+                                                <div className="mb-3">
+                                                    <label className="form-label fw-bold text-secondary small">Contact Number</label>
+                                                    <input 
+                                                        value={checkoutForm.phone}
+                                                        onChange={(e) => setCheckoutForm({ ...checkoutForm, phone: e.target.value })}
+                                                        type="tel" 
+                                                        inputMode="tel"
+                                                        pattern="(?:\+63|0)9[0-9]{9}"
+                                                        title="Use 09XXXXXXXXX or +639XXXXXXXXX"
+                                                        maxLength="13"
+                                                        className="form-control bg-light" 
+                                                        required 
+                                                    />
+                                                </div>
+                                                <div className="mb-4">
+                                                    <label className="form-label fw-bold text-secondary small">Complete Address & Landmark</label>
+                                                    <textarea 
+                                                        value={checkoutForm.address}
+                                                        onChange={(e) => setCheckoutForm({ ...checkoutForm, address: e.target.value })}
+                                                        className="form-control bg-light" 
+                                                        rows="3" 
+                                                        minLength="10"
+                                                        maxLength="180"
+                                                        required
+                                                    ></textarea>
+                                                </div>
+                                                <div className="panel-box p-3 mt-4" style={{ backgroundColor: '#fcfcfc' }}>
+                                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                                        <h5 className="fw-bold m-0 text-dark">Order Summary</h5>
+                                                        <span className="badge bg-secondary">{cart.length} item{cart.length === 1 ? '' : 's'}</span>
+                                                    </div>
+                                                    {cartSummary.length === 0 ? (
+                                                        <p className="text-muted mb-0">Your cart is empty.</p>
+                                                    ) : (
+                                                        <>
+                                                            {cartSummary.map((item) => (
+                                                                <div key={item.id} className="checkout-summary-item">
+                                                                    <div>
+                                                                        <div className="fw-bold text-dark">{item.name}</div>
+                                                                        <small className="text-muted">₱{item.price.toLocaleString()} / {item.unit}</small>
+                                                                    </div>
+                                                                    <div className="text-end">
+                                                                        <div className="quantity-stepper mb-2">
+                                                                            <button type="button" onClick={() => updateCartQuantity(item.id, item.quantity - 1)}>-</button>
+                                                                            <span>{item.quantity}</span>
+                                                                            <button type="button" onClick={() => updateCartQuantity(item.id, item.quantity + 1)}>+</button>
+                                                                        </div>
+                                                                        <div className="fw-bold text-danger">₱{(item.price * item.quantity).toLocaleString()}</div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                            <div className="checkout-summary-total mt-3 d-flex justify-content-between align-items-center">
+                                                                <span className="fw-bold text-secondary">Grand Total</span>
+                                                                <span className="fw-bold text-danger fs-5">₱{cartTotal.toLocaleString()}</span>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="col-12 col-md-6 checkout-right ps-md-4 text-center mt-0 mt-md-0" style={{ marginTop: 0 }}>
+                                                <h4 className="fw-bold mb-2">Scan & Pay</h4>
+                                                <p className="text-muted mb-3">Total Amount: <strong className="text-danger fs-3">₱{cartTotal.toLocaleString()}</strong></p>
+                                                <div className="bg-light p-4 rounded-3 mb-3 d-inline-block border font-monospace text-muted fw-bold">
+                                                    [ STATIC GCASH QR CODE ]
+                                                </div>
+                                                <form onSubmit={handlePaymentSubmission} className="text-start">
+                                                    <div className="mb-3">
+                                                        <label className="form-label fw-bold text-secondary small">Upload Screenshot of Payment</label>
+                                                        <input 
+                                                            type="file" 
+                                                            className="form-control bg-light" 
+                                                            accept="image/*" 
+                                                            onChange={previewReceipt}
+                                                            required 
+                                                        />
+                                                    </div>
+                                                    {receiptPreview && (
+                                                        <div className="img-preview-box mb-4">
+                                                            <img src={receiptPreview} alt="Receipt Preview" />
+                                                        </div>
+                                                    )}
+                                                    <button type="submit" className="btn btn-dark w-100 py-3 fw-bold fs-5 rounded-pill shadow">
+                                                        Submit Final Order
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentView === 'success' && (
+                        <div className="container text-center py-5">
+                            <div className="display-1 text-success mb-3">✅</div>
+                            <h2 className="fw-bold">Payment Under Review</h2>
+                            <p className="text-muted mb-4 fs-5">We've received your order. Your reference number is <strong className="text-dark">{lastOrderRef}</strong>.</p>
+                            <button 
+                                className="btn btn-outline-dark fw-bold rounded-pill px-5 py-2"
+                                onClick={() => setCurrentView('shop')}
+                            >
+                                Return to Store
+                            </button>
+                        </div>
+                    )}
+
+                    {currentView === 'track-order' && (
+                        <div className="container mb-5">
+                            <div className="row">
+                                <div className="col-12 col-md-10 col-lg-8 mx-auto">
+                                    <div className="tracker-header">
+                                        <button 
+                                            type="button"
+                                            className="btn btn-outline-secondary fw-bold rounded-pill px-4"
+                                            onClick={returnFromTracker}
+                                        >
+                                            Go Back
+                                        </button>
+                                        <h2 className="fw-bold text-dark tracker-title text-center">Track Your Order</h2>
+                                    </div>
+                                    <div className="panel-box mb-4">
+                                        <p className="text-muted mb-3">Enter your Order ID (e.g., ORD-1234) to track your delivery status</p>
+                                        <div className="input-group mb-3" style={{ marginBottom: '15px' }}>
+                                            <input 
+                                                type="text" 
+                                                className="form-control form-control-lg" 
+                                                placeholder="Enter Order ID..."
+                                                value={trackingOrderId}
+                                                onChange={(e) => setTrackingOrderId(e.target.value.toUpperCase())}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleTrackOrder()}
+                                            />
+                                            <button 
+                                                className="btn btn-danger fw-bold" 
+                                                type="button"
+                                                onClick={handleTrackOrder}
+                                            >
+                                                🔍 Search
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {trackedOrder ? (
+                                        <div className="panel-box">
+                                            <div style={{ marginBottom: '30px' }}>
+                                                <h4 className="fw-bold text-dark mb-4">Order Details</h4>
+                                                <div className="row mb-4">
+                                                    <div className="col-md-6">
+                                                        <p className="text-muted small">Order ID</p>
+                                                        <h5 className="fw-bold" style={{ color: 'var(--brand-red)' }}>{trackedOrder.id}</h5>
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                        <p className="text-muted small">Customer</p>
+                                                        <h5 className="fw-bold">{trackedOrder.customer}</h5>
+                                                    </div>
+                                                </div>
+                                                <div className="row mb-4">
+                                                    <div className="col-md-6">
+                                                        <p className="text-muted small">Total Amount</p>
+                                                        <h5 className="fw-bold" style={{ color: 'var(--brand-red)', fontSize: '1.5rem' }}>₱{trackedOrder.total.toLocaleString()}</h5>
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                        <p className="text-muted small">Delivery Address</p>
+                                                        <h6 className="fw-bold">{trackedOrder.address}</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <hr style={{ margin: '30px 0' }} />
+
+                                            <div>
+                                                <h4 className="fw-bold text-dark mb-4">Delivery Status</h4>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', marginBottom: '40px' }}>
+                                                    {['pending', 'confirmed', 'delivered'].map((st, idx) => (
+                                                        <div key={st} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                            <div 
+                                                                style={{
+                                                                    width: '60px',
+                                                                    height: '60px',
+                                                                    borderRadius: '50%',
+                                                                    backgroundColor: trackedOrder.status === st || (trackedOrder.status === 'confirmed' && st !== 'delivered') || (trackedOrder.status === 'delivered') ? getStatusColor(st) : '#e9ecef',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                    fontSize: '1.5rem',
+                                                                    boxShadow: trackedOrder.status === st ? '0 4px 12px rgba(0,0,0,0.2)' : 'none',
+                                                                    transition: 'all 0.3s ease',
+                                                                    zIndex: 2,
+                                                                    border: '3px solid white'
+                                                                }}
+                                                            >
+                                                                {getStatusEmoji(st)}
+                                                            </div>
+                                                            <p style={{ marginTop: '15px', fontWeight: '600', textAlign: 'center', color: trackedOrder.status === st ? 'var(--brand-red)' : '#666', fontSize: '0.95rem' }}>
+                                                                {st.charAt(0).toUpperCase() + st.slice(1)}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+                                                    <div 
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '30px',
+                                                            left: '16.66%',
+                                                            right: '16.66%',
+                                                            height: '4px',
+                                                            backgroundColor: '#e9ecef',
+                                                            zIndex: 1
+                                                        }}
+                                                    >
+                                                        <div 
+                                                            style={{
+                                                                height: '100%',
+                                                                backgroundColor: getStatusColor(trackedOrder.status),
+                                                                width: trackedOrder.status === 'pending' ? '0%' : trackedOrder.status === 'confirmed' ? '50%' : '100%',
+                                                                transition: 'width 0.3s ease'
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+                                                    <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>
+                                                        <strong>Current Status:</strong> Your order is currently <strong style={{ color: getStatusColor(trackedOrder.status) }}>{getStatusEmoji(trackedOrder.status)} {trackedOrder.status.toUpperCase()}</strong>
+                                                    </p>
+                                                </div>
+
+                                                {trackedOrder.receiptImg && (
+                                                    <div style={{ marginTop: '20px' }}>
+                                                        <p className="text-muted small">Payment Receipt</p>
+                                                        <img 
+                                                            src={trackedOrder.receiptImg} 
+                                                            style={{ width: '100%', maxWidth: '300px', borderRadius: '8px', border: '1px solid #ddd', cursor: 'pointer' }}
+                                                            onClick={() => setImagePreview(trackedOrder.receiptImg)}
+                                                            title="Click to view full size"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <button 
+                                                className="btn btn-outline-dark fw-bold rounded-pill px-5 mt-5 w-100"
+                                                onClick={returnFromTracker}
+                                            >
+                                                Return to Store
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                                            <p style={{ fontSize: '1.1rem' }}>👉 Enter your Order ID above to see the delivery status</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentView === 'admin' && isAdminLoggedIn && (
+                        <div className="container mb-5">
+                            <div className="admin-header mb-4">
+                                <h2 className="fw-bold text-dark m-0">Admin Dashboard</h2>
+                                <div className="admin-toolbar">
+                                    <button 
+                                        type="button"
+                                        className={`btn fw-bold rounded-pill px-4 shadow-sm ${adminTab === 'accounting' ? 'btn-dark text-white' : 'btn-outline-dark'}`}
+                                        onClick={() => setAdminTab('accounting')}
+                                    >
+                                        Accounting
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        className="position-relative notification-trigger px-3 py-2 rounded-pill"
+                                        onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
+                                        style={{ backgroundColor: 'var(--brand-red)' }}
+                                        title="View notifications"
+                                    >
+                                        <span className="me-2">Notifications</span>
+                                        {unreadNotificationCount > 0 && (
+                                            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white fw-bold">
+                                                {unreadNotificationCount}
+                                            </span>
+                                        )}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-danger fw-bold rounded-pill px-3 shadow-sm"
+                                        onClick={() => setNotifications([])}
+                                        title="Clear all notifications"
+                                    >
+                                        Clear
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        className="btn btn-warning fw-bold rounded-pill px-4 shadow-sm"
+                                        onClick={handleAdminLogout}
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                            <ul className="nav nav-tabs admin-tabs mb-4 border-bottom border-2">
+                                <li className="nav-item">
+                                    <button 
+                                        type="button"
+                                        className={`nav-link fw-bold cursor-pointer fs-5 nav-icon-btn ${adminTab === 'orders' ? 'active text-dark' : 'text-secondary'}`}
+                                        onClick={() => setAdminTab('orders')}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        📦 Orders 
+                                    </button>
+                                </li>
+                                <li className="nav-item">
+                                    <button 
+                                        type="button"
+                                        className={`nav-link fw-bold cursor-pointer fs-5 nav-icon-btn ${adminTab === 'inventory' ? 'active text-dark' : 'text-secondary'}`}
+                                        onClick={() => setAdminTab('inventory')}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        🥩 Product Inventory
+                                    </button>
+                                </li>
+                            </ul>
+
+                            {adminTab === 'orders' && (
+                                <div className="row g-3 g-md-4">
+                                    {['pending', 'confirmed', 'delivered'].map(status => (
+                                        <div key={status} className="col-12 col-md-6 col-lg-4">
+                                            <div className="kanban-col">
+                                                <h6 className="fw-bold text-muted mb-3 d-flex justify-content-between align-items-center">
+                                                    {status.toUpperCase()}
+                                                    <span className="badge bg-secondary rounded-pill">{ordersByStatus(status).length}</span>
+                                                </h6>
+                                                {ordersByStatus(status).map(order => (
+                                                    <div key={order.id} className={`kanban-card border-${status === 'pending' ? 'warning' : status === 'confirmed' ? 'primary' : 'success'}`}>
+                                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                                            <small className="font-monospace text-muted px-2 py-1 bg-light rounded border">{order.id}</small>
+                                                            <strong className="text-danger fs-5">₱{order.total.toLocaleString()}</strong>
+                                                        </div>
+                                                        <p className="fw-bold mb-0 text-dark fs-5">{order.customer}</p>
+                                                        <p className="text-muted small mb-1">📄 {order.phone}</p>
+                                                        <p className="text-muted small mb-3">🗭 {order.address}</p>
+                                                        {order.receiptImg && (
+                                                            <img 
+                                                                src={order.receiptImg} 
+                                                                className="w-100 mb-3 rounded border" 
+                                                                style={{ height: '80px', objectFit: 'cover', cursor: 'pointer' }}
+                                                                onClick={() => setImagePreview(order.receiptImg)}
+                                                                title="Click to view full size payment proof"
+                                                            />
+                                                        )}
+                                                        {status === 'pending' && (
+                                                            <button 
+                                                                className="btn btn-sm btn-success w-100 fw-bold py-2"
+                                                                onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                                                            >
+                                                                Accept & Prepare
+                                                            </button>
+                                                        )}
+                                                        {status === 'confirmed' && (
+                                                            <button 
+                                                                className="btn btn-sm btn-primary w-100 fw-bold py-2"
+                                                                onClick={() => {
+                                                                    const shouldMarkDelivered = window.confirm(`Mark order ${order.id} as delivered?`);
+                                                                    if (!shouldMarkDelivered) return;
+                                                                    updateOrderStatus(order.id, 'delivered');
+                                                                }}
+                                                            >
+                                                                Mark Delivered
+                                                            </button>
+                                                        )}
+                                                        {status === 'delivered' && (
+                                                            <span className="text-success fw-bold small d-block text-center border py-2 rounded bg-light">✅ Complete</span>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {adminTab === 'inventory' && (
+                                <div className="row g-3 g-md-4">
+                                    <div className="col-12 col-lg-4">
+                                        <div className="panel-box">
+                                            <h5 className="fw-bold border-bottom pb-2 mb-3">➕ Add New Product</h5>
+                                            <form onSubmit={(e) => { e.preventDefault(); handleAddProduct(); }}>
+                                                <div className="mb-3">
+                                                    <label className="form-label fw-bold text-secondary small">Product Name</label>
+                                                    <input 
+                                                        value={newProduct.name}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                                                        className="form-control bg-light" 
+                                                        required 
+                                                    />
+                                                </div>
+                                                <div className="mb-3">
+                                                    <label className="form-label fw-bold text-secondary small">Category</label>
+                                                    <select 
+                                                        value={newProduct.category}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                                                        className="form-select bg-light"
+                                                    >
+                                                        <option>Premium</option>
+                                                        <option>Poultry</option>
+                                                        <option>Pork</option>
+                                                        <option>Beef</option>
+                                                    </select>
+                                                </div>
+                                                <div className="row mb-3">
+                                                    <div className="col-6">
+                                                        <label className="form-label fw-bold text-secondary small">Price (₱)</label>
+                                                        <input 
+                                                            value={newProduct.price}
+                                                            onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) || 0 })}
+                                                            type="number" 
+                                                            className="form-control bg-light" 
+                                                            required 
+                                                        />
+                                                    </div>
+                                                    <div className="col-6">
+                                                        <label className="form-label fw-bold text-secondary small">Unit (e.g. KG)</label>
+                                                        <input 
+                                                            value={newProduct.unit}
+                                                            onChange={(e) => setNewProduct({ ...newProduct, unit: e.target.value })}
+                                                            className="form-control bg-light" 
+                                                            required 
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="mb-4">
+                                                    <label className="form-label fw-bold text-secondary small">Upload Photo (Optional)</label>
+                                                    <input 
+                                                        type="file" 
+                                                        className="form-control bg-light" 
+                                                        accept="image/*" 
+                                                        onChange={handleProductImageUpload}
+                                                    />
+                                                </div>
+                                                <button type="submit" className="btn text-white w-100 py-2 fw-bold" style={{ backgroundColor: 'var(--brand-red)' }}>
+                                                    Save Product
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div className="col-12 col-lg-8">
+                                        <div className="panel-box">
+                                            <div className="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                                                <h5 className="fw-bold m-0 text-dark">Active Product Catalog</h5>
+                                                <span className="badge bg-secondary">Total: {products.length}</span>
+                                            </div>
+                                            <div className="table-responsive">
+                                                <table className="table table-hover table-middle m-0 small">
+                                                    <thead className="table-light text-muted">
+                                                        <tr>
+                                                            <th>Image</th>
+                                                            <th>Product Name</th>
+                                                            <th>Category</th>
+                                                            <th>Price</th>
+                                                            <th>Status</th>
+                                                            <th className="text-end">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {products.map(product => (
+                                                            <tr key={product.id}>
+                                                                <td>
+                                                                    <div 
+                                                                        className="meat-icon-sm border"
+                                                                        onClick={() => setImagePreview(product.image)}
+                                                                        style={{ cursor: 'pointer' }}
+                                                                        title="Click to view full size"
+                                                                    >
+                                                                        {product.image.length > 5 ? (
+                                                                            <img src={product.image} style={{ objectFit: 'contain', borderRadius: '8px' }} />
+                                                                        ) : (
+                                                                            product.image
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td><div className="fw-bold text-dark">{product.name}</div></td>
+                                                                <td><span className={`badge ${getCategoryBadgeClass(product.category)}`}>{product.category}</span></td>
+                                                                <td className="text-danger fw-bold">₱{product.price.toLocaleString()} <span className="text-muted fw-normal">/{product.unit}</span></td>
+                                                                <td>
+                                                                    {product.inStock ? (
+                                                                        <span className="badge bg-success bg-opacity-10 text-success border border-success">In Stock</span>
+                                                                    ) : (
+                                                                        <span className="badge bg-danger bg-opacity-10 text-danger border border-danger">Out of Stock</span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="text-end">
+                                                                    <button 
+                                                                        className="btn btn-sm btn-light border text-primary fw-bold"
+                                                                        onClick={() => openEditModal(product)}
+                                                                    >
+                                                                        ✏️
+                                                                    </button>
+                                                                    <button 
+                                                                        className={`btn btn-sm fw-bold ms-1 ${product.inStock ? 'btn-outline-warning' : 'btn-outline-success'}`}
+                                                                        onClick={() => toggleStock(product.id)}
+                                                                    >
+                                                                        📦
+                                                                    </button>
+                                                                    <button 
+                                                                        className="btn btn-sm btn-light border text-danger fw-bold ms-1"
+                                                                        onClick={() => deleteProduct(product.id)}
+                                                                    >
+                                                                        🗑️
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {adminTab === 'accounting' && (
+                                <div className="row g-3 g-md-4">
+                                    <div className="col-12 col-xl-7">
+                                        <div className="panel-box h-100">
+                                            <div className="accounting-section-title">Sales Snapshot</div>
+                                            <div className="row g-3">
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="accounting-card">
+                                                        <div className="accounting-label">Gross Sales</div>
+                                                        <div className="accounting-value">₱{accountingSummary.grossSales.toLocaleString()}</div>
+                                                        <div className="accounting-subcopy">{orders.length} total order{orders.length === 1 ? '' : 's'}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="accounting-card">
+                                                        <div className="accounting-label">Collected Revenue</div>
+                                                        <div className="accounting-value positive">₱{accountingSummary.collectedRevenue.toLocaleString()}</div>
+                                                        <div className="accounting-subcopy">Delivered orders already collected</div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="accounting-card">
+                                                        <div className="accounting-label">Outstanding</div>
+                                                        <div className="accounting-value">₱{accountingSummary.receivables.toLocaleString()}</div>
+                                                        <div className="accounting-subcopy">Pending and confirmed orders</div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="accounting-card">
+                                                        <div className="accounting-label">Average Order</div>
+                                                        <div className="accounting-value">₱{Math.round(accountingSummary.averageOrderValue).toLocaleString()}</div>
+                                                        <div className="accounting-subcopy">Average basket size per order</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="accounting-section-title mt-4">Sales Ledger</div>
+                                            <div className="table-responsive">
+                                                <table className="table table-hover table-middle m-0 small">
+                                                    <thead className="table-light text-muted">
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <th>Order ID</th>
+                                                            <th>Customer</th>
+                                                            <th>Status</th>
+                                                            <th className="text-end">Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {orders.length === 0 ? (
+                                                            <tr>
+                                                                <td colSpan="5" className="text-center text-muted py-4">No sales recorded yet.</td>
+                                                            </tr>
+                                                        ) : (
+                                                            orders.slice().reverse().map((order) => (
+                                                                <tr key={order.id}>
+                                                                    <td>{new Date(order.createdAt || Date.now()).toLocaleDateString()}</td>
+                                                                    <td><span className="font-monospace text-muted">{order.id}</span></td>
+                                                                    <td>{order.customer}</td>
+                                                                    <td>
+                                                                        <span className={`badge ${order.status === 'delivered' ? 'bg-success' : order.status === 'confirmed' ? 'bg-primary' : 'bg-warning text-dark'}`}>
+                                                                            {order.status}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="text-end fw-bold text-danger">₱{order.total.toLocaleString()}</td>
+                                                                </tr>
+                                                            ))
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-12 col-xl-5">
+                                        <div className="panel-box mb-4">
+                                            <div className="accounting-section-title">Add Expense</div>
+                                            <form onSubmit={handleAddExpense}>
+                                                <div className="row g-3">
+                                                    <div className="col-12 col-sm-6">
+                                                        <label className="form-label fw-bold text-secondary small">Date</label>
+                                                        <input 
+                                                            type="date"
+                                                            value={expenseForm.date}
+                                                            onChange={(e) => setExpenseForm({ ...expenseForm, date: e.target.value })}
+                                                            className="form-control bg-light"
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="col-12 col-sm-6">
+                                                        <label className="form-label fw-bold text-secondary small">Category</label>
+                                                        <select 
+                                                            value={expenseForm.category}
+                                                            onChange={(e) => setExpenseForm({ ...expenseForm, category: e.target.value })}
+                                                            className="form-select bg-light"
+                                                        >
+                                                            <option>Operations</option>
+                                                            <option>Supplies</option>
+                                                            <option>Utilities</option>
+                                                            <option>Delivery</option>
+                                                            <option>Payroll</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="col-12">
+                                                        <label className="form-label fw-bold text-secondary small">Description</label>
+                                                        <input 
+                                                            value={expenseForm.description}
+                                                            onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
+                                                            className="form-control bg-light"
+                                                            placeholder="Example: freezer maintenance"
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="col-12">
+                                                        <label className="form-label fw-bold text-secondary small">Amount</label>
+                                                        <input 
+                                                            type="number"
+                                                            min="0"
+                                                            step="0.01"
+                                                            value={expenseForm.amount}
+                                                            onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+                                                            className="form-control bg-light"
+                                                            placeholder="0.00"
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <button type="submit" className="btn text-white w-100 py-2 fw-bold mt-4" style={{ backgroundColor: 'var(--brand-red)' }}>
+                                                    Save Expense
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <div className="panel-box">
+                                            <div className="accounting-section-title">Expense Ledger</div>
+                                            <div className="row g-3 mb-3">
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="accounting-card">
+                                                        <div className="accounting-label">Total Expenses</div>
+                                                        <div className="accounting-value negative">₱{accountingSummary.totalExpenses.toLocaleString()}</div>
+                                                        <div className="accounting-subcopy">{expenses.length} recorded expense{expenses.length === 1 ? '' : 's'}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="accounting-card">
+                                                        <div className="accounting-label">Net Balance</div>
+                                                        <div className={`accounting-value ${accountingSummary.netBalance >= 0 ? 'positive' : 'negative'}`}>
+                                                            ₱{accountingSummary.netBalance.toLocaleString()}
+                                                        </div>
+                                                        <div className="accounting-subcopy">Collected revenue minus expenses</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="table-responsive">
+                                                <table className="table table-hover table-middle m-0 small">
+                                                    <thead className="table-light text-muted">
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <th>Category</th>
+                                                            <th>Description</th>
+                                                            <th className="text-end">Amount</th>
+                                                            <th className="text-end">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {expenses.length === 0 ? (
+                                                            <tr>
+                                                                <td colSpan="5" className="text-center text-muted py-4">No expenses recorded yet.</td>
+                                                            </tr>
+                                                        ) : (
+                                                            expenses.map((expense) => (
+                                                                <tr key={expense.id}>
+                                                                    <td>{expense.date}</td>
+                                                                    <td>{expense.category}</td>
+                                                                    <td>{expense.description}</td>
+                                                                    <td className="text-end fw-bold text-danger">₱{expense.amount.toLocaleString()}</td>
+                                                                    <td className="text-end">
+                                                                        <button 
+                                                                            type="button"
+                                                                            className="btn btn-sm btn-light border text-danger fw-bold"
+                                                                            onClick={() => deleteExpense(expense.id)}
+                                                                        >
+                                                                            Remove
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {editModalOpen && (
+                        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                            <div className="modal-dialog" style={{ marginTop: '50px' }}>
+                                <div className="modal-content">
+                                    <div className="modal-header bg-dark text-white">
+                                        <h5 className="modal-title fw-bold">✏️ Edit Product</h5>
+                                        <button 
+                                            type="button" 
+                                            className="btn-close btn-close-white"
+                                            onClick={() => setEditModalOpen(false)}
+                                        ></button>
+                                    </div>
+                                    <div className="modal-body p-4">
+                                        <div className="mb-3 text-center">
+                                            {editProduct.image && editProduct.image.length > 5 ? (
+                                                <img src={editProduct.image} style={{ maxWidth: '150px', maxHeight: '150px', objectFit: 'contain' }} />
+                                            ) : (
+                                                <div className="meat-img-large" style={{ width: '150px', height: '150px', margin: '0 auto', marginBottom: '15px', border: '1px solid #ddd', borderRadius: '12px' }}>
+                                                    {editProduct.image}
+                                                </div>
+                                            )}
+                                            <input 
+                                                type="file" 
+                                                className="form-control bg-light mt-2" 
+                                                accept="image/*" 
+                                                onChange={handleEditImageUpload}
+                                            />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label className="form-label fw-bold text-secondary">Product Name</label>
+                                            <input 
+                                                value={editProduct.name}
+                                                onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
+                                                className="form-control bg-light" 
+                                                required 
+                                            />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label className="form-label fw-bold text-secondary">Category</label>
+                                            <select 
+                                                value={editProduct.category}
+                                                onChange={(e) => setEditProduct({ ...editProduct, category: e.target.value })}
+                                                className="form-select bg-light"
+                                            >
+                                                <option>Premium</option>
+                                                <option>Poultry</option>
+                                                <option>Pork</option>
+                                                <option>Beef</option>
+                                            </select>
+                                        </div>
+                                        <div className="row mb-3">
+                                            <div className="col-6">
+                                                <label className="form-label fw-bold text-secondary">Price (₱)</label>
+                                                <input 
+                                                    value={editProduct.price}
+                                                    onChange={(e) => setEditProduct({ ...editProduct, price: parseFloat(e.target.value) || 0 })}
+                                                    type="number" 
+                                                    className="form-control bg-light" 
+                                                    required 
+                                                />
+                                            </div>
+                                            <div className="col-6">
+                                                <label className="form-label fw-bold text-secondary">Unit</label>
+                                                <input 
+                                                    value={editProduct.unit}
+                                                    onChange={(e) => setEditProduct({ ...editProduct, unit: e.target.value })}
+                                                    className="form-control bg-light" 
+                                                    required 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-secondary"
+                                            onClick={() => setEditModalOpen(false)}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            className="btn text-white fw-bold"
+                                            style={{ backgroundColor: 'var(--brand-red)' }}
+                                            onClick={() => { saveEdit(); setEditModalOpen(false); }}
+                                        >
+                                            Save Changes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {cartOpen && (
+                        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                            <div className="modal-dialog modal-lg" style={{ marginTop: '50px' }}>
+                                <div className="modal-content">
+                                    <div className="modal-header bg-light">
+                                        <h5 className="modal-title fw-bold">🛒 Your Cart ({cart.length})</h5>
+                                        <button 
+                                            type="button" 
+                                            className="btn-close"
+                                            onClick={() => setCartOpen(false)}
+                                        ></button>
+                                    </div>
+                                    <div className="modal-body" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                        {cart.length === 0 ? (
+                                            <p className="text-muted text-center">Your cart is empty.</p>
+                                        ) : (
+                                            cart.map((item, index) => (
+                                                <div key={index} className="cart-item">
+                                                    <div>
+                                                        <span className="fw-bold text-dark d-block">{item.name}</span>
+                                                        <small className="text-muted text-danger fw-bold">₱{item.price.toLocaleString()}</small>
+                                                    </div>
+                                                    <button 
+                                                        className="btn btn-sm btn-light border text-danger"
+                                                        onClick={() => removeFromCart(index)}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                    <div className="modal-footer bg-light border-top">
+                                        <div className="w-100">
+                                            <div className="d-flex justify-content-between mb-3">
+                                                <span className="fw-bold text-secondary">Total:</span>
+                                                <span className="fw-bold text-danger fs-5">₱{cartTotal.toLocaleString()}</span>
+                                            </div>
+                                            <div className="d-flex gap-2">
+                                                <button 
+                                                    type="button" 
+                                                    className="btn btn-secondary w-100"
+                                                    onClick={() => setCartOpen(false)}
+                                                >
+                                                    Continue Shopping
+                                                </button>
+                                                <button 
+                                                    type="button" 
+                                                    className="btn btn-add w-100"
+                                                    onClick={() => { goToCheckout(); setCartOpen(false); }}
+                                                >
+                                                    Proceed to Checkout →
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {imagePreview && (
+                        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}>
+                            <div className="modal-dialog modal-lg" style={{ marginTop: '50px' }}>
+                                <div className="modal-content bg-dark">
+                                    <div className="modal-header bg-dark border-secondary">
+                                        <h5 className="modal-title fw-bold text-white">📷 Full Size Image</h5>
+                                        <button 
+                                            type="button" 
+                                            className="btn-close btn-close-white"
+                                            onClick={() => setImagePreview(null)}
+                                        ></button>
+                                    </div>
+                                    <div className="modal-body bg-dark text-center">
+                                        {imagePreview.length > 5 ? (
+                                            <img 
+                                                src={imagePreview} 
+                                                style={{ 
+                                                    maxWidth: '100%', 
+                                                    maxHeight: '600px', 
+                                                    objectFit: 'contain',
+                                                    borderRadius: '8px'
+                                                }} 
+                                                alt="Full Size Preview"
+                                            />
+                                        ) : (
+                                            <div style={{ fontSize: '200px' }}>{imagePreview}</div>
+                                        )}
+                                    </div>
+                                    <div className="modal-footer bg-dark border-secondary">
+                                        <button 
+                                            type="button" 
+                                            className="btn btn-light"
+                                            onClick={() => setImagePreview(null)}
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Notification Overlay */}
+                    <div 
+                        className={`notification-overlay ${notificationPanelOpen ? 'open' : ''}`}
+                        onClick={() => setNotificationPanelOpen(false)}
+                    ></div>
+
+                    {/* Notification Chat Panel */}
+                    <div className={`notification-panel ${notificationPanelOpen ? 'open' : ''}`}>
+                        <div className="notification-header">
+                            💬 Order Notifications
+                            <button 
+                                className="notification-close"
+                                onClick={() => setNotificationPanelOpen(false)}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="notification-list">
+                            {activeNotifications.length === 0 ? (
+                                <div className="notification-empty">
+                                    No active order notifications
+                                </div>
+                            ) : (
+                                activeNotifications.slice().reverse().map(notif => (
+                                    <div 
+                                        key={notif.id}
+                                        className={`notification-item ${!notif.read ? 'unread' : ''}`}
+                                        onClick={() => {
+                                            markNotificationAsRead(notif.id);
+                                            setSelectedNotification(notif);
+                                        }}
+                                    >
+                                        <div className="notification-item-header">
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    {!notif.read && <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--brand-red)' }}></span>}
+                                                    <div className="notification-customer">👤 {notif.customer}</div>
+                                                </div>
+                                            </div>
+                                            <div className="notification-time">
+                                                {notif.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        </div>
+                                        <div className="notification-amount">₱{notif.amount.toLocaleString()}</div>
+                                        <div style={{ fontSize: '0.9rem', color: '#666', marginTop: '5px' }}>Order {notif.id}</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>
+                                            Status: {notif.status ? notif.status.toUpperCase() : 'PENDING'}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Order Details Modal */}
+                    {selectedNotification && (
+                        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 11000 }}>
+                            <div style={{ background: 'white', borderRadius: '16px', padding: '30px', maxWidth: '500px', width: '90%', maxHeight: '80vh', overflow: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                    <h3 style={{ margin: 0, color: 'var(--brand-red)', fontWeight: 'bold' }}>📦 Order Details</h3>
+                                    <button 
+                                        onClick={() => setSelectedNotification(null)}
+                                        style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                                
+                                <div style={{ borderBottom: '2px solid #f0f0f0', paddingBottom: '15px', marginBottom: '15px' }}>
+                                    <div style={{ marginBottom: '10px' }}>
+                                        <strong style={{ color: '#666' }}>Order ID:</strong>
+                                        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--brand-red)', marginTop: '5px' }}>{selectedNotification.id}</div>
+                                    </div>
+                                </div>
+                                
+                                <div style={{ marginBottom: '20px' }}>
+                                    <strong style={{ color: '#666' }}>👤 Customer:</strong>
+                                    <div style={{ fontSize: '1.1rem', marginTop: '5px' }}>{selectedNotification.customer}</div>
+                                </div>
+                                
+                                <div style={{ marginBottom: '20px' }}>
+                                    <strong style={{ color: '#666' }}>💰 Amount:</strong>
+                                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--brand-red)', marginTop: '5px' }}>₱{selectedNotification.amount.toLocaleString()}</div>
+                                </div>
+                                
+                                <div style={{ marginBottom: '20px' }}>
+                                    <strong style={{ color: '#666' }}>⏰ Order Time:</strong>
+                                    <div style={{ fontSize: '1rem', marginTop: '5px' }}>{selectedNotification.time.toLocaleString()}</div>
+                                </div>
+                                
+                                <div style={{ marginBottom: '20px' }}>
+                                    <strong style={{ color: '#666' }}>📌 Status:</strong>
+                                    <div style={{ display: 'inline-block', backgroundColor: getStatusColor(selectedNotification.status || 'pending'), color: '#333', padding: '6px 12px', borderRadius: '50px', fontSize: '0.9rem', marginTop: '8px', fontWeight: 'bold' }}>
+                                        {getStatusEmoji(selectedNotification.status || 'pending')} {(selectedNotification.status || 'pending').toUpperCase()}
+                                    </div>
+                                </div>
+                                
+                                <button 
+                                    onClick={() => {
+                                        setSelectedNotification(null);
+                                        setCurrentView('admin');
+                                        setAdminTab('orders');
+                                    }}
+                                    style={{ width: '100%', padding: '12px', backgroundColor: 'var(--brand-red)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', marginTop: '15px' }}
+                                >
+                                    📦 View in Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {pendingDeleteProduct && (
+                        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 11000 }}>
+                            <div style={{ background: 'white', borderRadius: '16px', padding: '30px', maxWidth: '420px', width: '90%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+                                <h4 className="fw-bold text-dark mb-3">Delete product?</h4>
+                                <p className="text-muted mb-4">This will remove <strong className="text-dark">{pendingDeleteProduct.name}</strong> from the inventory list.</p>
+                                <div className="d-flex gap-2">
+                                    <button 
+                                        type="button"
+                                        className="btn btn-outline-secondary w-100"
+                                        onClick={() => setPendingDeleteProduct(null)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        className="btn btn-danger w-100 fw-bold"
+                                        onClick={confirmDeleteProduct}
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {toastMessage && (
+                        <div className="toast-custom">
+                            {toastMessage}
+                        </div>
+                    )}
+                </>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('app'));
+    </script>
+</body>
+</html>
