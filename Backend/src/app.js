@@ -21,9 +21,21 @@ app.set("trust proxy", env.TRUST_PROXY);
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || env.frontendOrigins.includes(origin)) {
+      // Allow no origin (like mobile apps or curl requests)
+      if (!origin) {
         return callback(null, true);
       }
+      
+      // Check if origin is in the explicit list
+      if (env.frontendOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      // Allow all Vercel preview URLs (*.vercel.app)
+      if (origin.includes(".vercel.app")) {
+        return callback(null, true);
+      }
+      
       return callback(new Error("Origin not allowed by CORS"));
     },
     credentials: true
