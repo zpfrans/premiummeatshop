@@ -5,7 +5,7 @@ export const productSchema = z.object({
   category: z.enum(["Premium", "Poultry", "Pork", "Beef"]),
   price: z.coerce.number().positive(),
   unit: z.string().trim().min(1).max(20),
-  image: z.string().trim().min(1).max(255).optional(),
+  image: z.string().trim().max(255).optional().or(z.literal('')),
   inStock: z.boolean().default(true)
 });
 
