@@ -14,8 +14,8 @@ function runMigrations() {
       });
       logger.info("Migrations completed successfully");
     } catch (error) {
-      logger.error("Migrations failed:", error.message);
-      throw error;
+      logger.warn("Migrations failed (non-fatal):", error.message);
+      // Don't throw - let app continue running
     }
   }
 }

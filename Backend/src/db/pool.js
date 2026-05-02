@@ -4,7 +4,8 @@ import { env } from "../config/env.js";
 const { Pool } = pg;
 
 export const pool = new Pool({
-  connectionString: env.DATABASE_URL
+  connectionString: env.DATABASE_URL,
+  ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
 });
 
 export async function runQuery(text, params = []) {
