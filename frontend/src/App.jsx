@@ -795,6 +795,16 @@ function App() {
                   Admin
                 </button>
               )}
+              {isAdminLoggedIn && (
+                <button
+                  type="button"
+                  className="btn btn-warning fw-bold rounded-pill px-4 shadow-sm"
+                  onClick={() => setCurrentView('admin')}
+                  title="Go to admin dashboard"
+                >
+                  👤 Admin
+                </button>
+              )}
             </div>
           </div>
 
