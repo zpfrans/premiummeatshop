@@ -80,6 +80,7 @@ function App() {
   // Tracking state
   const [trackingOrderId, setTrackingOrderId] = useState('');
   const [trackedOrder, setTrackedOrder] = useState(null);
+  const [pollingInterval, setPollingInterval] = useState(null);
 
   // Product management state
   const [newProduct, setNewProduct] = useState({
@@ -354,7 +355,32 @@ function App() {
     }
   };
 
+  // Auto-poll for order status updates every 5 seconds when tracking
+  useEffect(() => {
+    if (!trackedOrder) return;
+
+    const pollOrder = async () => {
+      try {
+        const response = await api.get(`/orders/track/${trackedOrder.id}`);
+        setTrackedOrder(normalizeOrder(response.data.order || {}));
+      } catch (error) {
+        console.error('Polling failed:', error);
+      }
+    };
+
+    // Poll immediately, then every 5 seconds
+    pollOrder();
+    const interval = setInterval(pollOrder, 5000);
+    setPollingInterval(interval);
+
+    return () => clearInterval(interval);
+  }, [trackedOrder?.id]);
+
   const returnFromTracker = () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      setPollingInterval(null);
+    }
     setCurrentView('shop');
     setTrackedOrder(null);
     setTrackingOrderId('');
