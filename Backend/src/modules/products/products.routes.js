@@ -5,8 +5,13 @@ import { validateBody } from "../../middleware/validate.js";
 import { productSchema, updateProductSchema } from "./products.schemas.js";
 import { HttpError } from "../../utils/httpError.js";
 import { productUpload, uploadProductImage } from "./upload.js";
+import { z } from "zod";
 
 const router = express.Router();
+
+// Schema for product creation (excluding image file)
+const productCreateSchema = productSchema.omit({ image: true });
+const productUpdateSchema = updateProductSchema.omit({ image: true });
 
 router.get("/", async (_req, res) => {
   const result = await runQuery(
@@ -15,8 +20,9 @@ router.get("/", async (_req, res) => {
   return res.json({ products: result.rows });
 });
 
-router.post("/", requireAuth, requireRole("admin"), productUpload.single("image"), validateBody(productSchema), async (req, res) => {
-  const { name, category, price, unit, inStock } = req.validatedBody;
+router.post("/", requireAuth, requireRole("admin"), productUpload.single("image"), validateBody(productCreateSchema), async (req, res) => {
+  const { name, category, price, unit } = req.validatedBody;
+  const inStock = req.body.inStock !== undefined ? req.body.inStock === 'true' || req.body.inStock === true : true;
   const imageUrl = req.file ? await uploadProductImage(req.file) : null;
   
   const result = await runQuery(
@@ -28,7 +34,7 @@ router.post("/", requireAuth, requireRole("admin"), productUpload.single("image"
   return res.status(201).json({ product: result.rows[0] });
 });
 
-router.put("/:id", requireAuth, requireRole("admin"), productUpload.single("image"), validateBody(updateProductSchema), async (req, res) => {
+router.put("/:id", requireAuth, requireRole("admin"), productUpload.single("image"), validateBody(productUpdateSchema), async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id < 1) throw new HttpError(400, "Invalid product id");
 
@@ -38,13 +44,15 @@ router.put("/:id", requireAuth, requireRole("admin"), productUpload.single("imag
 
   const imageUrl = req.file ? await uploadProductImage(req.file) : undefined;
   
+  const inStock = req.validatedBody.inStock ?? (req.body.inStock !== undefined ? req.body.inStock === 'true' || req.body.inStock === true : current.in_stock);
+  
   const next = {
     name: req.validatedBody.name ?? current.name,
     category: req.validatedBody.category ?? current.category,
     price: req.validatedBody.price ?? current.price,
     unit: req.validatedBody.unit ?? current.unit,
     image: imageUrl !== undefined ? imageUrl : current.image,
-    inStock: req.validatedBody.inStock ?? current.in_stock
+    inStock: inStock
   };
 
   const result = await runQuery(

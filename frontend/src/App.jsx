@@ -82,14 +82,11 @@ function App() {
   const [trackedOrder, setTrackedOrder] = useState(null);
   const [pollingInterval, setPollingInterval] = useState(null);
 
-  // Product management state
-  const [newProduct, setNewProduct] = useState({
-    name: '', category: 'Premium', price: 0, unit: '', image: ''
-  });
-  const [editProduct, setEditProduct] = useState({
-    id: null, name: '', category: 'Premium', price: 0, unit: '', image: ''
-  });
-  const [pendingDeleteProduct, setPendingDeleteProduct] = useState(null);
+  // Product management
+  const [productImageFile, setProductImageFile] = useState(null);
+  const [editImageFile, setEditImageFile] = useState(null);
+
+  // ... existing state ...
 
   // Accounting state
   const [expenses, setExpenses] = useState([]);
@@ -476,17 +473,23 @@ function App() {
   // Product management
   const handleAddProduct = async () => {
     try {
-      const response = await api.post('/products', {
-        name: newProduct.name.trim(),
-        category: newProduct.category,
-        price: Number(newProduct.price),
-        unit: newProduct.unit.trim().toUpperCase(),
-        image: newProduct.image || '',
-        inStock: true
+      const formData = new FormData();
+      formData.append('name', newProduct.name.trim());
+      formData.append('category', newProduct.category);
+      formData.append('price', Number(newProduct.price));
+      formData.append('unit', newProduct.unit.trim().toUpperCase());
+      formData.append('inStock', true);
+      if (productImageFile) {
+        formData.append('image', productImageFile);
+      }
+
+      const response = await api.post('/products', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       setProducts((prev) => [...prev, normalizeProduct(response.data.product)]);
       setNewProduct({ name: '', category: 'Premium', price: 0, unit: '', image: '' });
+      setProductImageFile(null);
       showToast('Product added.');
     } catch (error) {
       console.error('Add product failed:', error);
@@ -496,18 +499,24 @@ function App() {
 
   const openEditModal = (product) => {
     setEditProduct({ ...product, image: product.image || '' });
+    setEditImageFile(null);
     setEditModalOpen(true);
   };
 
   const saveEdit = async () => {
     try {
-      const response = await api.put(`/products/${editProduct.id}`, {
-        name: editProduct.name.trim(),
-        category: editProduct.category,
-        price: Number(editProduct.price),
-        unit: editProduct.unit.trim().toUpperCase(),
-        image: editProduct.image || '',
-        inStock: Boolean(editProduct.inStock)
+      const formData = new FormData();
+      formData.append('name', editProduct.name.trim());
+      formData.append('category', editProduct.category);
+      formData.append('price', Number(editProduct.price));
+      formData.append('unit', editProduct.unit.trim().toUpperCase());
+      formData.append('inStock', Boolean(editProduct.inStock));
+      if (editImageFile) {
+        formData.append('image', editImageFile);
+      }
+
+      const response = await api.put(`/products/${editProduct.id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       setProducts((prev) =>
@@ -516,6 +525,7 @@ function App() {
         )
       );
       setEditModalOpen(false);
+      setEditImageFile(null);
       showToast('Product updated.');
     } catch (error) {
       console.error('Edit product failed:', error);
@@ -559,6 +569,7 @@ function App() {
 
   const handleProductImageUpload = (event) => {
     if (event.target.files[0]) {
+      setProductImageFile(event.target.files[0]);
       const reader = new FileReader();
       reader.onload = (e) => setNewProduct({ ...newProduct, image: e.target.result });
       reader.readAsDataURL(event.target.files[0]);
@@ -567,6 +578,7 @@ function App() {
 
   const handleEditImageUpload = (event) => {
     if (event.target.files[0]) {
+      setEditImageFile(event.target.files[0]);
       const reader = new FileReader();
       reader.onload = (e) => setEditProduct({ ...editProduct, image: e.target.result });
       reader.readAsDataURL(event.target.files[0]);
