@@ -1,18 +1,18 @@
 import axios from "axios";
 
 function resolveApiBaseUrl() {
-  // Always prioritize environment variable for Vercel deployment
+  // Always prioritize environment variable for Render/production deployment
   const envUrl = import.meta.env.VITE_API_BASE_URL?.trim();
   if (envUrl) {
     return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
   }
 
-  // For Vercel preview deployments (at runtime, not build time)
-  if (typeof window !== "undefined" && window.location.hostname.includes("vercel.app")) {
-    return "https://premiummeatshop-api.onrender.com/api";
+  // Fallback for local development only
+  if (typeof window !== "undefined" && window.location.hostname === "localhost") {
+    return "http://localhost:4000/api";
   }
 
-  // Fallback for local development
+  // For production without env var, use relative path
   return "/api";
 }
 

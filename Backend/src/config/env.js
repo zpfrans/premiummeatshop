@@ -15,7 +15,10 @@ const envSchema = z.object({
   UPLOAD_DIR: z.string().default("uploads"),
   TRUST_PROXY: z.coerce.number().default(1),
   ADMIN_SEED_USERNAME: z.string().default("admin"),
-  ADMIN_SEED_PASSWORD: z.string().default("admin123")
+  ADMIN_SEED_PASSWORD: z.string().default("admin123"),
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional()
 });
 
 const parsed = envSchema.safeParse(process.env);

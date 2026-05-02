@@ -4,6 +4,7 @@ import { requireAuth, requireRole } from "../../middleware/auth.js";
 import { validateBody } from "../../middleware/validate.js";
 import { productSchema, updateProductSchema } from "./products.schemas.js";
 import { HttpError } from "../../utils/httpError.js";
+import { productUpload, uploadProductImage } from "./upload.js";
 
 const router = express.Router();
 
@@ -14,18 +15,20 @@ router.get("/", async (_req, res) => {
   return res.json({ products: result.rows });
 });
 
-router.post("/", requireAuth, requireRole("admin"), validateBody(productSchema), async (req, res) => {
-  const { name, category, price, unit, image, inStock } = req.validatedBody;
+router.post("/", requireAuth, requireRole("admin"), productUpload.single("image"), validateBody(productSchema), async (req, res) => {
+  const { name, category, price, unit, inStock } = req.validatedBody;
+  const imageUrl = req.file ? await uploadProductImage(req.file) : null;
+  
   const result = await runQuery(
     `INSERT INTO products(name, category, price, unit, image, in_stock)
      VALUES($1, $2, $3, $4, $5, $6)
      RETURNING id, name, category, price, unit, image, in_stock AS "inStock"`,
-    [name, category, price, unit, image || "", inStock]
+    [name, category, price, unit, imageUrl || "", inStock]
   );
   return res.status(201).json({ product: result.rows[0] });
 });
 
-router.put("/:id", requireAuth, requireRole("admin"), validateBody(updateProductSchema), async (req, res) => {
+router.put("/:id", requireAuth, requireRole("admin"), productUpload.single("image"), validateBody(updateProductSchema), async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id < 1) throw new HttpError(400, "Invalid product id");
 
@@ -33,12 +36,14 @@ router.put("/:id", requireAuth, requireRole("admin"), validateBody(updateProduct
   const current = currentResult.rows[0];
   if (!current) throw new HttpError(404, "Product not found");
 
+  const imageUrl = req.file ? await uploadProductImage(req.file) : undefined;
+  
   const next = {
     name: req.validatedBody.name ?? current.name,
     category: req.validatedBody.category ?? current.category,
     price: req.validatedBody.price ?? current.price,
     unit: req.validatedBody.unit ?? current.unit,
-    image: req.validatedBody.image ?? current.image,
+    image: imageUrl !== undefined ? imageUrl : current.image,
     inStock: req.validatedBody.inStock ?? current.in_stock
   };
 
