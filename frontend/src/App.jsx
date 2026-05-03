@@ -708,23 +708,30 @@ function App() {
       {/* Shop View */}
       {currentView === 'shop' && (
         <div className="container mb-5">
-          <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 shop-header-actions">
             <h2 className="fw-bold m-0 text-dark">Order Fresh Meats</h2>
-            <div className="d-flex gap-2 flex-wrap">
+            <button
+              className="btn btn-track-order fw-bold rounded-pill px-4 d-md-none mobile-track-order"
+              onClick={goToTrackOrder}
+              title="Track your order"
+            >
+              Track Order
+            </button>
+            <div className="d-flex gap-2 flex-wrap mobile-action-row">
               <button
-                className="btn btn-track-order fw-bold rounded-pill px-4 d-none d-md-inline-block"
+                className="btn btn-track-order fw-bold rounded-pill px-4 d-none d-md-inline-block mobile-action-btn"
                 onClick={goToTrackOrder}
                 title="Track your order"
               >
                 Track Order
               </button>
-              <button className="btn btn-dark fw-bold fs-5 shadow-sm rounded-pill px-4" onClick={goToCheckout}>
+              <button className="btn btn-dark fw-bold fs-5 shadow-sm rounded-pill px-4 mobile-action-btn" onClick={goToCheckout}>
                 🛒 Cart ({cart.length})
               </button>
               {!isAdminLoggedIn && (
                 <button
                   type="button"
-                  className="btn btn-dark fw-bold rounded-pill px-4 shadow-sm"
+                  className="btn btn-dark fw-bold rounded-pill px-4 shadow-sm mobile-action-btn"
                   onClick={() => setCurrentView('admin-login')}
                   title="Admin login"
                 >
@@ -734,7 +741,7 @@ function App() {
               {isAdminLoggedIn && (
                 <button
                   type="button"
-                  className="btn btn-warning fw-bold rounded-pill px-4 shadow-sm"
+                  className="btn btn-warning fw-bold rounded-pill px-4 shadow-sm mobile-action-btn"
                   onClick={() => setCurrentView('admin')}
                   title="Go to admin dashboard"
                 >
