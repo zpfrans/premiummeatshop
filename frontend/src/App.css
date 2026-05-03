@@ -4,8 +4,8 @@
 
 :root {
   /* Primary Brand Colors */
-  --brand-red: #e85d56;
-  --brand-dark: #cc4943;
+  --brand-red: #c81e1e;
+  --brand-dark: #8b1212;
   --brand-light: #e8d5d5;
   --brand-accent: #d43f3f;
   
@@ -37,7 +37,7 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-xl: 0 12px 32px rgba(255, 116, 108, 0.15);
+  --shadow-xl: 0 12px 32px rgba(200, 30, 30, 0.15);
   
   /* Transitions */
   --transition: all 0.3s ease;
@@ -70,7 +70,7 @@ html, body {
 .navbar {
   background: var(--brand-red);
   color: white;
-  padding: 0.35rem 0;
+  padding: 1rem 0;
   box-shadow: var(--shadow-md);
   position: sticky;
   top: 0;
@@ -119,20 +119,20 @@ html, body {
 }
 
 .brand-title {
-  font-size: 1.1rem;
+  font-size: 1.55rem;
   font-weight: 700;
   letter-spacing: 0.35px;
   line-height: 1.15;
 }
 
 .brand-logo {
-  height: 40px;
+  height: 58px;
   width: auto;
   object-fit: contain;
 }
 
 .brand-tagline {
-  font-size: 0.7rem;
+  font-size: 0.92rem;
   letter-spacing: 0.45px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
@@ -289,8 +289,8 @@ small {
 }
 
 .btn-track-order {
-  background: var(--brand-red);
-  color: white;
+  background: #fff;
+  color: var(--brand-red);
   border: 2px solid var(--brand-red);
   font-weight: 700;
   padding: 0.6rem 1.2rem;
@@ -298,7 +298,7 @@ small {
 }
 
 .btn-track-order:hover {
-  background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-red) 100%);
+  background: linear-gradient(135deg, var(--brand-red) 0%, var(--brand-dark) 100%);
   color: white;
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);

@@ -85,9 +85,9 @@ function App() {
   // Product management
   const [productImageFile, setProductImageFile] = useState(null);
   const [editImageFile, setEditImageFile] = useState(null);
+  const [newProduct, setNewProduct] = useState({ name: '', category: 'Premium', price: 0, unit: '', image: '' });
+  const [editProduct, setEditProduct] = useState({ name: '', category: 'Premium', price: 0, unit: '', image: '', inStock: true, id: null });
   const [pendingDeleteProduct, setPendingDeleteProduct] = useState(null);
-
-  // ... existing state ...
 
   // Accounting state
   const [expenses, setExpenses] = useState([]);
@@ -479,7 +479,7 @@ function App() {
       formData.append('category', newProduct.category);
       formData.append('price', Number(newProduct.price));
       formData.append('unit', newProduct.unit.trim().toUpperCase());
-      formData.append('inStock', true);
+      formData.append('inStock', String(newProduct.inStock ?? true));
       if (productImageFile) {
         formData.append('image', productImageFile);
       }
@@ -511,7 +511,7 @@ function App() {
       formData.append('category', editProduct.category);
       formData.append('price', Number(editProduct.price));
       formData.append('unit', editProduct.unit.trim().toUpperCase());
-      formData.append('inStock', Boolean(editProduct.inStock));
+      formData.append('inStock', String(editProduct.inStock));
       if (editImageFile) {
         formData.append('image', editImageFile);
       }
@@ -703,7 +703,7 @@ function App() {
               >
                 {showPassword ? 'Hide Password' : 'Show Password'}
               </button>
-              <button type="submit" className="btn w-100 fw-bold text-white py-2" style={{ backgroundColor: '#FF746C' }}>
+              <button type="submit" className="btn w-100 fw-bold text-white py-2" style={{ backgroundColor: '#c00000' }}>
                 Login
               </button>
               <button
@@ -816,7 +816,7 @@ function App() {
                   key={cat}
                   className="fw-bold px-4 py-2 border-0 rounded-pill"
                   style={{
-                    background: currentCategory === cat ? 'linear-gradient(135deg, #FF746C 0%, #FF6B63 100%)' : '#f3f4f6',
+                    background: currentCategory === cat ? 'linear-gradient(135deg, #c81e1e 0%, #8b1212 100%)' : '#f3f4f6 !important',
                     color: currentCategory === cat ? 'white' : '#6b7280',
                     borderWidth: currentCategory === cat ? '0' : '2px',
                     borderStyle: 'solid',
@@ -825,7 +825,7 @@ function App() {
                     transition: 'all 0.3s ease',
                     animation: currentCategory === cat ? 'pulse 1.5s ease-in-out infinite' : 'none',
                     cursor: 'pointer',
-                    boxShadow: currentCategory === cat ? '0 4px 12px rgba(255, 116, 108, 0.3)' : 'none',
+                    boxShadow: currentCategory === cat ? '0 4px 12px rgba(200, 30, 30, 0.3)' : 'none',
                     fontSize: '1rem',
                     fontWeight: 600
                   }}
@@ -1091,7 +1091,7 @@ function App() {
                     <div className="row mb-4">
                       <div className="col-md-6">
                         <p className="text-muted small">Order ID</p>
-                        <h5 className="fw-bold" style={{ color: '#FF746C' }}>
+                        <h5 className="fw-bold" style={{ color: '#c00000' }}>
                           {trackedOrder.id}
                         </h5>
                       </div>
@@ -1103,7 +1103,7 @@ function App() {
                     <div className="row mb-4">
                       <div className="col-md-6">
                         <p className="text-muted small">Total Amount</p>
-                        <h5 className="fw-bold" style={{ color: '#FF746C', fontSize: '1.5rem' }}>
+                        <h5 className="fw-bold" style={{ color: '#c00000', fontSize: '1.5rem' }}>
                           ₱{(trackedOrder.total || 0).toLocaleString()}
                         </h5>
                       </div>
@@ -1144,7 +1144,7 @@ function App() {
                           >
                             {getStatusEmoji(st)}
                           </div>
-                          <p style={{ marginTop: '15px', fontWeight: '600', textAlign: 'center', color: trackedOrder.status === st ? '#FF746C' : '#666', fontSize: '0.95rem' }}>
+                          <p style={{ marginTop: '15px', fontWeight: '600', textAlign: 'center', color: trackedOrder.status === st ? '#c00000' : '#666', fontSize: '0.95rem' }}>
                             {label}
                           </p>
                         </div>
@@ -1253,7 +1253,7 @@ function App() {
                 type="button"
                 className="position-relative notification-trigger px-3 py-2 rounded-pill fw-bold"
                 onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
-                style={{ backgroundColor: '#FF746C', color: 'white' }}
+                style={{ backgroundColor: '#c81e1e', color: 'white' }}
                 title="View notifications"
               >
                 <span className="me-2">🔔 Notifications</span>
@@ -1414,7 +1414,7 @@ function App() {
                         onChange={handleProductImageUpload}
                       />
                     </div>
-                    <button type="submit" className="btn text-white w-100 py-2 fw-bold" style={{ backgroundColor: '#FF746C' }}>
+                    <button type="submit" className="btn text-white w-100 py-2 fw-bold" style={{ backgroundColor: '#c00000' }}>
                       Save Product
                     </button>
                   </form>
@@ -1655,7 +1655,7 @@ function App() {
                     <button
                       type="submit"
                       className="btn text-white w-100 py-2 fw-bold mt-4"
-                      style={{ backgroundColor: '#FF746C' }}
+                      style={{ backgroundColor: '#c00000' }}
                     >
                       Save Expense
                     </button>
@@ -1818,7 +1818,7 @@ function App() {
                 <button
                   type="button"
                   className="btn text-white fw-bold"
-                  style={{ backgroundColor: '#FF746C' }}
+                  style={{ backgroundColor: '#c00000' }}
                   onClick={() => {
                     saveEdit();
                     setEditModalOpen(false);
@@ -1994,7 +1994,7 @@ function App() {
                   marginBottom: '10px',
                   borderRadius: '8px',
                   backgroundColor: notification.read ? '#f9f9f9' : '#fff3cd',
-                  borderLeft: `4px solid ${notification.read ? '#ddd' : '#FF746C'}`,
+                  borderLeft: `4px solid ${notification.read ? '#ddd' : '#c81e1e'}`,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                 }}

@@ -6,7 +6,14 @@ export const productSchema = z.object({
   price: z.coerce.number().positive(),
   unit: z.string().trim().min(1).max(20),
   image: z.string().trim().max(255).optional().or(z.literal('')),
-  inStock: z.boolean().default(true)
+  inStock: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      const v = val.toLowerCase();
+      if (v === 'true') return true;
+      if (v === 'false') return false;
+    }
+    return val;
+  }, z.boolean().default(true))
 });
 
 export const updateProductSchema = productSchema.partial();

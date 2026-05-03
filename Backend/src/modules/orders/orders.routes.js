@@ -199,7 +199,7 @@ router.patch("/:orderRef/status", requireAuth, requireRole("admin"), validateBod
     );
 
     await client.query(
-      "UPDATE notifications SET status = $1, read = CASE WHEN $1 = 'delivered' THEN true ELSE read END, updated_at = NOW() WHERE order_id = $2",
+      "UPDATE notifications SET status = $1::order_status, read = CASE WHEN $1::order_status = 'delivered'::order_status THEN true ELSE read END, updated_at = NOW() WHERE order_id = $2",
       [status, currentOrder.id]
     );
 
