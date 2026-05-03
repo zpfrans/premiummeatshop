@@ -2,13 +2,7 @@ import bcrypt from "bcryptjs";
 import { env } from "../src/config/env.js";
 import { pool } from "../src/db/pool.js";
 
-const seedProducts = [
-  { name: "Wagyu Chuck Roll", category: "Premium", price: 1150, unit: "500G", image: "🥩" },
-  { name: "USDA Ribeye", category: "Premium", price: 900, unit: "500G", image: "🥩" },
-  { name: "Whole Chicken", category: "Poultry", price: 210, unit: "KG", image: "🍗" },
-  { name: "Pork Sukiyaki", category: "Pork", price: 420, unit: "KG", image: "🥓" },
-  { name: "Beef Sukiyaki", category: "Beef", price: 490, unit: "KG", image: "🥩" }
-];
+const seedProducts = [];
 
 async function seed() {
   const passwordHash = await bcrypt.hash(env.ADMIN_SEED_PASSWORD, 10);
