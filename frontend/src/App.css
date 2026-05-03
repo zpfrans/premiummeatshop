@@ -1255,6 +1255,58 @@ a, button, input, select, textarea {
   animation: shimmer 2s infinite;
 }
 
+.api-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(18, 24, 38, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+body.api-loading-active {
+  overflow: hidden;
+}
+
+body.api-loading-active > #root > :not(.api-loading-overlay) {
+  pointer-events: none;
+  user-select: none;
+}
+
+.api-loading-card {
+  width: min(92vw, 420px);
+  padding: 1.5rem 1.25rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.api-loading-card h3 {
+  margin: 0.5rem 0 0.35rem;
+  color: var(--text-primary);
+  font-size: 1.15rem;
+}
+
+.api-loading-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.api-loading-spinner {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 5px solid rgba(255, 116, 108, 0.18);
+  border-top-color: var(--brand-red);
+  animation: spin 0.9s linear infinite;
+}
+
 /* Page transitions */
 .page {
   animation: fadeIn 0.4s ease;

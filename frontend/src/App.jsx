@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { api, getPublicAssetUrl } from './api/client';
+import { api, getPublicAssetUrl, subscribeToApiLoading } from './api/client';
 import './App.css';
 
 const SHOP_LOGO_PATH = '/Assets/IMG-743fadedeae8e984e2be4e1c65adaa85-V-removebg-preview.png';
@@ -46,6 +46,7 @@ function App() {
   // UI state
   const [brandSelected, setBrandSelected] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [isApiLoading, setIsApiLoading] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
@@ -88,6 +89,18 @@ function App() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 2000);
   }, []);
+
+  useEffect(() => {
+    return subscribeToApiLoading(setIsApiLoading);
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('api-loading-active', isApiLoading);
+
+    return () => {
+      document.body.classList.remove('api-loading-active');
+    };
+  }, [isApiLoading]);
 
   const loadProducts = useCallback(async () => {
     try {
@@ -616,6 +629,16 @@ function App() {
   // ==================== RENDER FULL APP ====================
   return (
     <>
+      {isApiLoading && (
+        <div className="api-loading-overlay" role="status" aria-live="polite" aria-busy="true">
+          <div className="api-loading-card">
+            <div className="api-loading-spinner" aria-hidden="true"></div>
+            <h3>Loading fresh details</h3>
+            <p>Please wait a moment while we fetch the latest products, orders, and updates.</p>
+          </div>
+        </div>
+      )}
+
       {/* Admin Login Modal */}
       {!isAdminLoggedIn && currentView === 'admin-login' && (
         <div className="login-container">

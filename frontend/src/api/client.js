@@ -31,15 +31,48 @@ export const api = axios.create({
   timeout: 10000
 });
 
+let pendingRequestCount = 0;
+const apiLoadingListeners = new Set();
+
+function notifyApiLoadingListeners() {
+  const isLoading = pendingRequestCount > 0;
+  apiLoadingListeners.forEach((listener) => listener(isLoading));
+}
+
+export function subscribeToApiLoading(listener) {
+  apiLoadingListeners.add(listener);
+  listener(pendingRequestCount > 0);
+
+  return () => {
+    apiLoadingListeners.delete(listener);
+  };
+}
+
+function startApiRequest() {
+  pendingRequestCount += 1;
+  notifyApiLoadingListeners();
+}
+
+function finishApiRequest() {
+  pendingRequestCount = Math.max(0, pendingRequestCount - 1);
+  notifyApiLoadingListeners();
+}
+
 // Keep requests credentialed so the backend's httpOnly cookie can carry auth.
-api.interceptors.request.use((config) => config);
+api.interceptors.request.use((config) => {
+  startApiRequest();
+  return config;
+});
 
 // Handle auth errors and provide better error messages
 api.interceptors.response.use(
   (response) => {
+    finishApiRequest();
     return response;
   },
   (error) => {
+    finishApiRequest();
+
     // Provide friendly error messages
     let message = error.message || 'An error occurred';
     
