@@ -151,27 +151,6 @@ html, body {
   flex-wrap: wrap;
 }
 
-.navbar-toggler {
-  display: none;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.navbar-menu.show {
-  display: flex !important;
-  flex-direction: column;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: var(--brand-red);
-  padding: 1rem;
-  box-shadow: var(--shadow-md);
-}
-
 /* ========== CONTAINER & LAYOUT ========== */
 .container {
   max-width: 1200px;
@@ -849,25 +828,11 @@ textarea {
   flex-wrap: wrap;
 }
 
-.admin-toolbar .btn,
-.admin-toolbar .notification-trigger {
+.admin-toolbar .btn {
   min-height: 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-.notification-trigger {
-  background: var(--brand-red) !important;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: var(--transition);
-}
-
-.notification-trigger:hover {
-  background: var(--brand-dark) !important;
 }
 
 .admin-tabs {
@@ -1012,26 +977,6 @@ textarea {
   min-height: 2.5rem;
 }
 
-.notification-panel {
-  position: fixed;
-  right: -350px;
-  top: 0;
-  width: 350px;
-  max-width: calc(100vw - 1rem);
-  height: 100vh;
-  background-color: white;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  transition: right 0.3s ease;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.notification-panel.open {
-  right: 0;
-}
-
 /* ========== LOGIN CONTAINER ========== */
 .login-container {
   display: flex;
@@ -1094,25 +1039,6 @@ textarea {
     transform: translateX(-50%) translateY(100px);
     opacity: 0;
   }
-}
-
-/* ========== NOTIFICATIONS OVERLAY ========== */
-.notification-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  pointer-events: none;
-  transition: var(--transition);
-  z-index: 999;
-}
-
-.notification-overlay.open {
-  opacity: 1;
-  pointer-events: all;
 }
 
 /* ========== ANIMATIONS ========== */
@@ -1266,10 +1192,6 @@ textarea {
 
 .badge {
   animation: scaleIn 0.3s ease;
-}
-
-.notification-badge {
-  animation: pulse 1s ease-in-out infinite;
 }
 
 .price-tag {
@@ -1780,10 +1702,6 @@ a, button, input, select, textarea {
 
 /* ========== TABLET & MEDIUM SCREENS ========== */
 @media (min-width: 768px) {
-  .navbar-toggler {
-    display: none !important;
-  }
-
   .d-lg-none {
     display: none !important;
   }
@@ -1946,7 +1864,6 @@ a, button, input, select, textarea {
   }
 
   .admin-toolbar .btn,
-  .admin-toolbar .notification-trigger,
   .navbar-menu.show .navbar-actions .btn {
     width: 100%;
   }
@@ -1970,20 +1887,6 @@ a, button, input, select, textarea {
 
   .login-box {
     padding: 1.5rem;
-  }
-
-  .navbar-toggler {
-    display: block !important;
-  }
-
-  .navbar-menu.show {
-    flex-direction: column;
-  }
-
-  .notification-panel {
-    width: 100%;
-    max-width: 100%;
-    right: -100%;
   }
 }
 

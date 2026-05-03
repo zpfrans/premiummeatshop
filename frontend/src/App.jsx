@@ -32,18 +32,8 @@ function normalizeOrder(order) {
   };
 }
 
-function normalizeNotification(notification) {
-  return {
-    ...notification,
-    amount: Number(notification.amount || 0),
-    time: notification.createdAt ? new Date(notification.createdAt) : new Date()
-  };
-}
-
 function App() {
   // Navbar state
-  const [navbarOpen, setNavbarOpen] = useState(false);
-
   // Auth state
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -71,11 +61,8 @@ function App() {
   const [receiptPreview, setReceiptPreview] = useState(null);
   const [receiptFile, setReceiptFile] = useState(null);
 
-  // Admin state - Orders & Notifications
+  // Admin state
   const [orders, setOrders] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
-  const [selectedNotification, setSelectedNotification] = useState(null);
 
   // Tracking state
   const [trackingOrderId, setTrackingOrderId] = useState('');
@@ -115,14 +102,12 @@ function App() {
 
   const loadAdminData = useCallback(async () => {
     try {
-      const [ordersResponse, notificationsResponse, expensesResponse] = await Promise.all([
+      const [ordersResponse, expensesResponse] = await Promise.all([
         api.get('/orders/admin/list'),
-        api.get('/notifications'),
         api.get('/expenses')
       ]);
 
       setOrders((ordersResponse.data.orders || []).map(normalizeOrder));
-      setNotifications((notificationsResponse.data.notifications || []).map(normalizeNotification));
       setExpenses((expensesResponse.data.expenses || []).map((expense) => ({
         ...expense,
         amount: Number(expense.amount || 0)
@@ -408,7 +393,6 @@ function App() {
 
     setIsAdminLoggedIn(false);
     setOrders([]);
-    setNotifications([]);
     setExpenses([]);
     setCurrentView('shop');
     setLoginForm({ username: '', password: '' });
@@ -425,48 +409,13 @@ function App() {
     try {
       await api.patch(`/orders/${currentOrder.orderRef || currentOrder.id}/status`, { status: newStatus });
       await loadAdminData();
-      setSelectedNotification((prev) =>
-        prev && prev.orderRef === currentOrder.orderRef && newStatus === 'delivered' ? null : prev
-      );
     } catch (error) {
       console.error('Order status update failed:', error);
       showToast(error.message || 'Failed to update order status.');
     }
   };
 
-  // Notification functions
-  const markNotificationAsRead = async (notifId) => {
-    try {
-      await api.patch(`/notifications/${notifId}/read`);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notifId ? { ...n, read: true } : n))
-      );
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
-      showToast(error.message || 'Failed to update notification.');
-    }
-  };
 
-  const clearNotifications = async () => {
-    try {
-      await api.delete('/notifications/clear');
-      setNotifications([]);
-      showToast('Notifications cleared.');
-    } catch (error) {
-      console.error('Failed to clear notifications:', error);
-      showToast(error.message || 'Failed to clear notifications.');
-    }
-  };
-
-  const activeNotifications = useMemo(
-    () => notifications.filter((n) => n.status !== 'delivered'),
-    [notifications]
-  );
-
-  const unreadNotificationCount = useMemo(
-    () => activeNotifications.filter((n) => !n.read).length,
-    [activeNotifications]
-  );
 
   // Product management
   const handleAddProduct = async () => {
@@ -662,7 +611,6 @@ function App() {
 
   const goToTrackOrder = () => {
     setCurrentView('track-order');
-    setNavbarOpen(false);
   };
 
   // ==================== RENDER FULL APP ====================
@@ -724,7 +672,7 @@ function App() {
               <button
                 type="button"
                 className={`navbar-brand fw-bold fs-5 cursor-pointer d-flex align-items-center gap-2 m-0 nav-icon-btn ${brandSelected ? 'brand-selected' : ''}`}
-                onClick={() => { setBrandSelected(true); setCurrentView('shop'); setNavbarOpen(false); }}
+                onClick={() => { setBrandSelected(true); setCurrentView('shop'); }}
                 style={{ cursor: 'pointer' }}
               >
                 <img src={SHOP_LOGO_PATH} alt="Farmer's Premium Meatshop logo" className="brand-logo" />
@@ -733,24 +681,13 @@ function App() {
                   <small className="brand-tagline">Prime cuts, pure flavor</small>
                 </div>
               </button>
-              {currentView !== 'admin' && (
-                <button
-                  className="navbar-toggler d-lg-none"
-                  type="button"
-                  onClick={() => setNavbarOpen(!navbarOpen)}
-                  style={{ border: 'none', background: 'none', color: 'white', fontSize: '1.5rem', padding: '0' }}
-                  title="Toggle navigation"
-                >
-                  ☰
-                </button>
-              )}
             </div>
 
-            <div className={`navbar-menu ${navbarOpen ? 'show' : ''} d-none d-lg-flex`} style={{ display: 'flex' }}>
+            <div className="navbar-menu d-none d-lg-flex" style={{ display: 'flex' }}>
               <div className="navbar-actions navbar-nav">
                 <button
                   className="btn btn-light fw-bold rounded-pill px-4 shadow-sm d-lg-none"
-                  onClick={() => { setCurrentView('shop'); setNavbarOpen(false); }}
+                  onClick={() => { setCurrentView('shop'); }}
                   title="Back to shop"
                 >
                   🏠 Home
@@ -1246,28 +1183,6 @@ function App() {
                 onClick={() => setAdminTab('accounting')}
               >
                 Accounting
-              </button>
-              <button
-                type="button"
-                className="position-relative notification-trigger px-3 py-2 rounded-pill fw-bold"
-                onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
-                style={{ backgroundColor: '#c81e1e', color: 'white' }}
-                title="View notifications"
-              >
-                <span className="me-2">🔔 Notifications</span>
-                {unreadNotificationCount > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white fw-bold">
-                    {unreadNotificationCount}
-                  </span>
-                )}
-              </button>
-              <button
-                type="button"
-                className="btn btn-outline-danger fw-bold rounded-pill px-3 shadow-sm"
-                onClick={clearNotifications}
-                title="Clear all notifications"
-              >
-                Clear
               </button>
               <button
                 type="button"
@@ -1967,60 +1882,6 @@ function App() {
           </div>
         </div>
       )}
-
-      {/* Notification Overlay & Panel */}
-      <div
-        className={`notification-overlay ${notificationPanelOpen ? 'open' : ''}`}
-        onClick={() => setNotificationPanelOpen(false)}
-      ></div>
-
-      {/* Notification Sidebar Panel */}
-      <div className={`notification-panel ${notificationPanelOpen ? 'open' : ''}`}>
-        <div style={{ padding: '20px', borderBottom: '2px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h5 className="m-0 fw-bold">🔔 Notifications</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setNotificationPanelOpen(false)}
-          ></button>
-        </div>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '15px' }}>
-          {activeNotifications.length > 0 ? (
-            activeNotifications.map((notification, idx) => (
-              <div
-                key={idx}
-                style={{
-                  padding: '12px',
-                  marginBottom: '10px',
-                  borderRadius: '8px',
-                  backgroundColor: notification.read ? '#f9f9f9' : '#fff3cd',
-                  borderLeft: `4px solid ${notification.read ? '#ddd' : '#c81e1e'}`,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-                onClick={() => {
-                  if (!notification.read) {
-                    markNotificationAsRead(notification.id);
-                  }
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0f0f0'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = notification.read ? '#f9f9f9' : '#fff3cd'; }}
-              >
-                <div style={{ fontWeight: notification.read ? '500' : '700', color: '#333', marginBottom: '4px' }}>
-                  {notification.message}
-                </div>
-                <small style={{ color: '#999' }}>
-                  {notification.time ? new Date(notification.time).toLocaleTimeString() : 'Just now'}
-                </small>
-              </div>
-            ))
-          ) : (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#999' }}>
-              <p>✅ No active notifications</p>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Toast Notification */}
       {toastMessage && <div className="toast-custom">{toastMessage}</div>}
