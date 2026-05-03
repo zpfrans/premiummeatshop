@@ -107,9 +107,6 @@ function App() {
       const response = await api.get('/products');
       const normalizedProducts = (response.data.products || []).map(normalizeProduct);
       setProducts(normalizedProducts);
-      if (normalizedProducts.length > 0 && !normalizedProducts.some((product) => product.category === currentCategory)) {
-        setCurrentCategory(normalizedProducts[0].category);
-      }
     } catch (error) {
       console.error('Failed to load products:', error);
       showToast(error.message || 'Connection lost. Please try again.');
@@ -591,7 +588,8 @@ function App() {
       Premium: 'bg-dark',
       Poultry: 'bg-warning text-dark',
       Pork: 'bg-danger',
-      Beef: 'bg-primary'
+      Beef: 'bg-primary',
+      'Ready to Cook': 'bg-success'
     };
     return classes[category] || 'bg-secondary';
   };
@@ -810,13 +808,13 @@ function App() {
           </div>
 
           <div className="d-flex justify-content-center mb-5 gap-2 flex-wrap">
-            {['Premium', 'Poultry', 'Pork', 'Beef'].map(cat => {
+            {['Premium', 'Poultry', 'Pork', 'Beef', 'Ready to Cook'].map(cat => {
               return (
                 <button
                   key={cat}
                   className="fw-bold px-4 py-2 border-0 rounded-pill"
                   style={{
-                    background: currentCategory === cat ? 'linear-gradient(135deg, #c81e1e 0%, #8b1212 100%)' : '#f3f4f6 !important',
+                    background: currentCategory === cat ? 'linear-gradient(135deg, #FF746C 0%, #FF6B63 100%)' : '#f3f4f6',
                     color: currentCategory === cat ? 'white' : '#6b7280',
                     borderWidth: currentCategory === cat ? '0' : '2px',
                     borderStyle: 'solid',
@@ -825,7 +823,7 @@ function App() {
                     transition: 'all 0.3s ease',
                     animation: currentCategory === cat ? 'pulse 1.5s ease-in-out infinite' : 'none',
                     cursor: 'pointer',
-                    boxShadow: currentCategory === cat ? '0 4px 12px rgba(200, 30, 30, 0.3)' : 'none',
+                    boxShadow: currentCategory === cat ? '0 4px 12px rgba(255, 116, 108, 0.3)' : 'none',
                     fontSize: '1rem',
                     fontWeight: 600
                   }}
@@ -1382,6 +1380,7 @@ function App() {
                         <option>Poultry</option>
                         <option>Pork</option>
                         <option>Beef</option>
+                        <option>Ready to Cook</option>
                       </select>
                     </div>
                     <div className="row mb-3">
@@ -1787,6 +1786,7 @@ function App() {
                     <option>Poultry</option>
                     <option>Pork</option>
                     <option>Beef</option>
+                    <option>Ready to Cook</option>
                   </select>
                 </div>
                 <div className="row mb-3">
