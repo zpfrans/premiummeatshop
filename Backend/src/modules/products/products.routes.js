@@ -1,5 +1,5 @@
 import express from "express";
-import { runQuery } from "../../db/pool.js";
+import { pool, runQuery } from "../../db/pool.js";
 import { requireAuth, requireRole } from "../../middleware/auth.js";
 import { validateBody } from "../../middleware/validate.js";
 import { productSchema, updateProductSchema } from "./products.schemas.js";
@@ -70,22 +70,28 @@ router.delete("/:id", requireAuth, requireRole("admin"), async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id < 1) throw new HttpError(400, "Invalid product id");
 
-  // Check if product has any associated order items
-  const orderItemsResult = await runQuery(
-    "SELECT COUNT(*) as count FROM order_items WHERE product_id = $1",
-    [id]
-  );
-  
-  const orderItemCount = parseInt(orderItemsResult.rows[0]?.count || 0, 10);
-  if (orderItemCount > 0) {
-    throw new HttpError(
-      400,
-      `Cannot delete product with ${orderItemCount} order(s). Mark it as out of stock instead to prevent new orders.`
-    );
-  }
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
 
-  await runQuery("DELETE FROM products WHERE id = $1", [id]);
-  return res.status(204).send();
+    const deleteOrdersResult = await client.query(
+      `DELETE FROM orders
+       WHERE id IN (
+         SELECT DISTINCT order_id FROM order_items WHERE product_id = $1
+       )`,
+      [id]
+    );
+
+    await client.query("DELETE FROM products WHERE id = $1", [id]);
+    await client.query("COMMIT");
+
+    return res.status(204).send();
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 });
 
 export default router;

@@ -1891,6 +1891,9 @@ function App() {
                 <p className="text-center text-dark">
                   Are you sure you want to delete <strong>{pendingDeleteProduct.name}</strong>? This action cannot be undone.
                 </p>
+                <p className="text-center text-danger small mb-0">
+                  Any orders that include this product will also be deleted along with their associated items and history.
+                </p>
               </div>
               <div className="modal-footer">
                 <button
