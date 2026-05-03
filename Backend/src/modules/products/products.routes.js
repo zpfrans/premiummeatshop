@@ -70,6 +70,20 @@ router.delete("/:id", requireAuth, requireRole("admin"), async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id) || id < 1) throw new HttpError(400, "Invalid product id");
 
+  // Check if product has any associated order items
+  const orderItemsResult = await runQuery(
+    "SELECT COUNT(*) as count FROM order_items WHERE product_id = $1",
+    [id]
+  );
+  
+  const orderItemCount = parseInt(orderItemsResult.rows[0]?.count || 0, 10);
+  if (orderItemCount > 0) {
+    throw new HttpError(
+      400,
+      `Cannot delete product with ${orderItemCount} order(s). Mark it as out of stock instead to prevent new orders.`
+    );
+  }
+
   await runQuery("DELETE FROM products WHERE id = $1", [id]);
   return res.status(204).send();
 });
