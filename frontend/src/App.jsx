@@ -17,7 +17,7 @@ function normalizeProduct(product) {
   return {
     ...product,
     price: Number(product?.price || 0),
-    image: product?.image || ''
+    image: getPublicAssetUrl(product?.image || '')
   };
 }
 
