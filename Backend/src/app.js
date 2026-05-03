@@ -44,7 +44,14 @@ app.use(
 app.use(helmet());
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
-app.use(`/${env.UPLOAD_DIR}`, express.static(env.UPLOAD_DIR));
+app.use(
+  `/${env.UPLOAD_DIR}`,
+  (req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(env.UPLOAD_DIR)
+);
 app.use(
   pinoHttp({
     logger
