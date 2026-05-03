@@ -70,7 +70,6 @@ html, body {
 .navbar {
   background: linear-gradient(90deg, #fa2c20 0%, #ff6a2f 40%, #ff9d4c 75%, #ffb66c 100%);
   color: white;
-  padding: 1rem 0;
   box-shadow: var(--shadow-xl);
   position: sticky;
   top: 0;
@@ -132,7 +131,6 @@ html, body {
 
 .navbar-brand:hover,
 .navbar-brand.brand-selected {
-  background-color: rgba(255, 255, 255, 0.15);
   transform: scale(1.05);
 }
 
@@ -150,7 +148,7 @@ html, body {
 }
 
 .brand-logo {
-  height: 58px;
+  height: 75px;
   width: auto;
   object-fit: contain;
 }
@@ -182,6 +180,12 @@ html, body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
+  width: 100%;
+}
+.container-nav-bar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 8px;
   width: 100%;
 }
 
@@ -533,6 +537,10 @@ textarea {
   overflow: hidden;
   padding: 1rem;
   object-fit: contain;
+}
+
+.meat-img-large.has-image {
+  background: transparent;
 }
 
 .meat-img-large img {
@@ -1641,7 +1649,7 @@ body.api-loading-active > #root > :not(.api-loading-overlay) {
 }
 
 .bg-dark {
-  background-color: var(--brand-dark) !important;
+  background-color: rgb(142, 140, 140) !important;
 }
 
 .bg-danger {
@@ -1921,7 +1929,7 @@ body.api-loading-active > #root > :not(.api-loading-overlay) {
   }
 
   .brand-logo {
-    height: 46px;
+    height: 75px;
   }
 
   .brand-tagline {

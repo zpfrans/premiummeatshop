@@ -690,7 +690,7 @@ function App() {
       {/* Navigation Bar */}
       {currentView !== 'admin-login' && (
         <nav className="navbar">
-          <div className="container navbar-shell">
+          <div className="container-nav-bar navbar-shell">
             <div className="navbar-brand-wrap">
               <button
                 type="button"
@@ -748,8 +748,8 @@ function App() {
               >
                 Track Order
               </button>
-              <button className="btn btn-dark fw-bold fs-5 shadow-sm rounded-pill px-4 mobile-action-btn" onClick={goToCheckout}>
-                🛒 Cart ({cart.length})
+              <button className="btn btn-dark fw-bold shadow-sm rounded-pill px-4 mobile-action-btn" onClick={goToCheckout}>
+                Cart ({cart.length})
               </button>
               {!isAdminLoggedIn && (
                 <button
@@ -768,7 +768,7 @@ function App() {
                   onClick={() => setCurrentView('admin')}
                   title="Go to admin dashboard"
                 >
-                  👤 Admin
+                  Admin
                 </button>
               )}
             </div>
@@ -781,14 +781,13 @@ function App() {
                   key={cat}
                   className="fw-bold px-4 py-2 border-0 rounded-pill"
                   style={{
-                    background: currentCategory === cat ? 'linear-gradient(135deg, #FF746C 0%, #FF6B63 100%)' : '#f3f4f6',
-                    color: currentCategory === cat ? 'white' : '#6b7280',
+                    background: currentCategory === cat ? '#c81e1e' : 'white',
+                    color: currentCategory === cat ? 'white' : 'black',
                     borderWidth: currentCategory === cat ? '0' : '2px',
                     borderStyle: 'solid',
-                    borderColor: currentCategory === cat ? 'transparent' : '#e5e7eb',
+                    border: currentCategory === cat ? '' : '2px solid #c81e1e',
                     transform: currentCategory === cat ? 'scale(1.05)' : 'scale(1)',
                     transition: 'all 0.3s ease',
-                    animation: currentCategory === cat ? 'pulse 1.5s ease-in-out infinite' : 'none',
                     cursor: 'pointer',
                     boxShadow: currentCategory === cat ? '0 4px 12px rgba(255, 116, 108, 0.3)' : 'none',
                     fontSize: '1rem',
@@ -827,7 +826,7 @@ function App() {
                   {!product.inStock && (
                     <span className="badge bg-danger position-absolute top-0 end-0 m-3 shadow-sm">Out of Stock</span>
                   )}
-                  <div className="meat-img-large">
+                  <div className={`meat-img-large has-image`}>
                     {hasImageSource(product.image) ? (
                       <img src={product.image} style={{ objectFit: 'contain' }} alt={product.name} />
                     ) : (
@@ -1198,14 +1197,14 @@ function App() {
                 className={`btn fw-bold rounded-pill px-4 shadow-sm ${adminTab === 'orders' ? 'btn-dark text-white' : 'btn-outline-dark'}`}
                 onClick={() => setAdminTab('orders')}
               >
-                📦 Orders
+                Orders
               </button>
               <button
                 type="button"
                 className={`btn fw-bold rounded-pill px-4 shadow-sm ${adminTab === 'inventory' ? 'btn-dark text-white' : 'btn-outline-dark'}`}
                 onClick={() => setAdminTab('inventory')}
               >
-                🥩 Product Inventory
+                Product Inventory
               </button>
               <button
                 type="button"
@@ -1688,7 +1687,7 @@ function App() {
           <div className="modal-dialog" style={{ marginTop: '50px' }}>
             <div className="modal-content">
               <div className="modal-header bg-dark text-white">
-                <h5 className="modal-title fw-bold">✏️ Edit Product</h5>
+                <h5 className="modal-title fw-bold" style={{color: "white"}}>Edit Product</h5>
                 <button
                   type="button"
                   className="btn-close btn-close-white"
@@ -1845,7 +1844,7 @@ function App() {
           <div className="modal-dialog modal-lg" style={{ marginTop: '50px' }}>
             <div className="modal-content bg-dark">
               <div className="modal-header bg-dark border-secondary">
-                <h5 className="modal-title fw-bold text-white">📷 Full Size Image</h5>
+                <h5 className="modal-title fw-bold text-white" style={{color: "white"}}>Full Size Image</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setImagePreview(null)}></button>
               </div>
               <div className="modal-body bg-dark text-center">
