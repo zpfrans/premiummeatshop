@@ -52,7 +52,11 @@ router.post("/login", validateBody(adminLoginSchema), async (req, res) => {
 });
 
 router.post("/logout", requireAuth, async (req, res) => {
-  res.clearCookie("accessToken");
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: env.NODE_ENV === "production",
+    sameSite: env.NODE_ENV === "production" ? "none" : "lax"
+  });
   await runQuery(
     "INSERT INTO audit_logs(actor_id, action, entity_type, entity_id, metadata) VALUES($1, $2, $3, $4, $5)",
     [req.user.sub, "auth.logout", "users", req.user.sub, {}]
